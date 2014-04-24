@@ -9,11 +9,17 @@ import org.stevedowning.remo.common.request.RequestBatch;
 
 public class ResponseBatch {
     private final Id<RequestBatch> requestBatchId;
+    private final int numExpectedResults;
     private final Map<Id<Request>, Response> responses;
     
-    public ResponseBatch(Id<RequestBatch> requestBatchId) {
+    public ResponseBatch(Id<RequestBatch> requestBatchId, int numExpectedResults) {
         this.requestBatchId = requestBatchId;
+        this.numExpectedResults = numExpectedResults;
         this.responses = new HashMap<Id<Request>, Response>();
+    }
+    
+    public static ResponseBatch forRequestBatch(RequestBatch requestBatch) {
+        return new ResponseBatch(requestBatch.getId(), requestBatch.size());
     }
     
     public Id<RequestBatch> getRequestBatchId() { return requestBatchId; }
@@ -21,4 +27,6 @@ public class ResponseBatch {
     public synchronized void addResponse(Response response) {
         responses.put(response.getRequestId(), response);
     }
+    
+    public synchronized boolean isDone() { return responses.size() == numExpectedResults; }
 }

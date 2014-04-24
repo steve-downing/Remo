@@ -24,4 +24,5 @@ public class RequestBatch implements Identifiable<RequestBatch> {
     public synchronized List<Request> getRequests() {
         return new LinkedList<Request>(requests.values());
     }
+    public int size() { return requests.size(); }
 }
