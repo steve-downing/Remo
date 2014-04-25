@@ -56,8 +56,8 @@ public class DefaultServiceRunner implements ServiceRunner {
         // TODO: Fill this in.
     }
 
-    public ServiceHandle runService(Object handler, Class<?> serviceContract,
-            int port) throws IOException {
+    public <T> ServiceHandle runService(T handler, Class<T> serviceContract, int port)
+            throws IOException {
         if (!serviceContract.isInterface()) {
             throw new IllegalArgumentException("The serviceContract should be an interface.");
         }

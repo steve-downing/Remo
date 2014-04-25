@@ -11,7 +11,7 @@ public class ServiceInterface {
     private final Object handler;
     private final IdMap<ServiceMethod> methodMap;
     
-    public ServiceInterface(Class<?> serviceContract, Object handler) {
+    public <T> ServiceInterface(Class<T> serviceContract, T handler) {
         this.handler = handler;
         this.methodMap = new HashIdMap<ServiceMethod>();
         populateMethodMap(serviceContract);
