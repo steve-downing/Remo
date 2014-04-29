@@ -112,6 +112,7 @@ public class DefaultServiceRunner implements ServiceRunner {
                     for (Request request : requestBatch.getRequests()) {
                         handleRequest(service, responseBatch, request);
                     }
+                    out = new PrintWriter(clientSocket.getOutputStream(), true);
                     // TODO: Serialize the individual responses out as they become available
                     //       instead of sending the batch all at once.
                     serializationManager.serialize(out, responseBatch);
