@@ -112,6 +112,8 @@ public class DefaultServiceRunner implements ServiceRunner {
                     for (Request request : requestBatch.getRequests()) {
                         handleRequest(service, responseBatch, request);
                     }
+                    // TODO: Serialize the individual responses out as they become available
+                    //       instead of sending the batch all at once.
                     serializationManager.serialize(out, responseBatch);
                 } catch (Exception e) {
                     logError("Error handling response", e);
