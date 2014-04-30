@@ -53,7 +53,9 @@ public class DefaultServiceRunner implements ServiceRunner {
     }
     
     private void logError(String message, Exception e) {
-        // TODO: Fill this in.
+        // TODO: Use an actual logging framework.
+        System.err.println(message);
+        e.printStackTrace(System.err);
     }
 
     public <T> ServiceHandle runService(T handler, Class<T> serviceContract, int port)
@@ -64,7 +66,7 @@ public class DefaultServiceRunner implements ServiceRunner {
         ServerSocket serverSocket = new ServerSocket(port);
         ServiceInterface serviceInterface = new ServiceInterface(serviceContract, handler);
         ServiceLoop serviceLoop = new ServiceLoop(serviceInterface, serverSocket);
-        new Thread(serviceLoop).start();
+        new Thread(serviceLoop, serviceContract.getSimpleName()).start();
         return serviceLoop;
     }
     
@@ -106,16 +108,16 @@ public class DefaultServiceRunner implements ServiceRunner {
                 PrintWriter out = null;
                 try {
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    RequestBatch requestBatch = serializationManager.deserialize(in);
+                    RequestBatch requestBatch =
+                            serializationManager.deserialize(clientSocket.getInputStream());
                     ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
                     // TODO: Delegate these requests to different threads.
                     for (Request request : requestBatch.getRequests()) {
                         handleRequest(service, responseBatch, request);
                     }
-                    out = new PrintWriter(clientSocket.getOutputStream(), true);
                     // TODO: Serialize the individual responses out as they become available
                     //       instead of sending the batch all at once.
-                    serializationManager.serialize(out, responseBatch);
+                    serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
                 } catch (Exception e) {
                     logError("Error handling response", e);
                 } finally {

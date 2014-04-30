@@ -1,12 +1,12 @@
 package org.stevedowning.remo.common.serial;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public interface SerializationManager {
-    public void serialize(PrintWriter out, Object obj) throws IOException;
+    public void serialize(OutputStream out, Object obj) throws IOException;
     public String serialize(Object obj) throws IOException;
-    public <T> T deserialize(BufferedReader in) throws IOException, ClassNotFoundException;
+    public <T> T deserialize(InputStream in) throws IOException, ClassNotFoundException;
     public <T> T deserialize(String str) throws IOException, ClassNotFoundException;
 }

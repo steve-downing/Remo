@@ -1,12 +1,12 @@
 package org.stevedowning.remo.common.serial;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 
 public class DefaultSerializationManager implements SerializationManager {
     @SuppressWarnings("unchecked")
@@ -26,13 +26,13 @@ public class DefaultSerializationManager implements SerializationManager {
         }
     }
 
-    public String serialize(Object o) throws IOException {
+    public String serialize(Object obj) throws IOException {
         ObjectOutputStream oout = null;
         ByteArrayOutputStream baout = null;
         try {
             baout = new ByteArrayOutputStream();
             oout = new ObjectOutputStream(baout);
-            oout.writeObject(o);
+            oout.writeObject(obj);
             byte[] bytes = baout.toByteArray();
             String retVal = new String(bytes);
             return retVal;
@@ -42,16 +42,14 @@ public class DefaultSerializationManager implements SerializationManager {
         }
     }
 
-    @Override
-    public void serialize(PrintWriter out, Object obj) throws IOException {
-        // TODO Auto-generated method stub
-        
+    public void serialize(OutputStream out, Object obj) throws IOException {
+        ObjectOutputStream oout = new ObjectOutputStream(out);
+        oout.writeObject(obj);
     }
 
-    @Override
-    public <T> T deserialize(BufferedReader in) throws IOException,
-            ClassNotFoundException {
-        // TODO Auto-generated method stub
-        return null;
+    @SuppressWarnings("unchecked")
+    public <T> T deserialize(InputStream in) throws IOException, ClassNotFoundException {
+        ObjectInputStream oin = new ObjectInputStream(in);
+        return (T)(oin.readObject());
     }
 }
