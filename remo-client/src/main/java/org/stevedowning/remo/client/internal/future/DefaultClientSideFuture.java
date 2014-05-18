@@ -122,13 +122,7 @@ public class DefaultClientSideFuture<T> implements Future<T> {
     }
 
     private void invokeCallback(Callback<T> callback) {
-        if (executionException != null) {
-            callback.handleError(executionException);
-        } else if (interruptedException != null) {
-            callback.handleError(interruptedException);
-        } else {
-            callback.handleResponse(val);
-        }
+        callback.handleResponse(this);
     }
 
     public Future<CancelResult> cancel(CancelOptions options) {
