@@ -1,5 +1,6 @@
 package org.stevedowning.remo.client.internal.future;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
@@ -18,6 +19,7 @@ public class DefaultClientSideFuture<T> implements Future<T> {
     private volatile boolean isDone;
     private volatile InterruptedException interruptedException;
     private volatile ExecutionException executionException;
+    private volatile IOException ioException;
     private volatile T val;
     private volatile boolean isError;
     private final CountDownLatch doneLatch;
@@ -45,6 +47,7 @@ public class DefaultClientSideFuture<T> implements Future<T> {
     public boolean cancel() {
         if (isDone) return false;
         setException(new InterruptedException());
+        // TODO: Should the cancellation actions happen asynchronously?
         for (Runnable cancellationAction : cancellationActions) {
             cancellationAction.run();
         }
@@ -62,7 +65,8 @@ public class DefaultClientSideFuture<T> implements Future<T> {
         return this;
     }
 
-    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
+    public T get(long timeout, TimeUnit unit)
+            throws InterruptedException, ExecutionException, IOException {
         if (doneLatch.await(timeout, unit)) {
             return get();
         } else {
@@ -70,12 +74,14 @@ public class DefaultClientSideFuture<T> implements Future<T> {
         }
     }
 
-    public T get() throws InterruptedException, ExecutionException {
+    public T get() throws InterruptedException, ExecutionException, IOException {
         doneLatch.await();
         if (executionException != null) {
             throw executionException;
         } else if (interruptedException != null) {
             throw interruptedException;
+        } else if (ioException != null) {
+            throw ioException;
         } else {
             return val;
         }
@@ -93,6 +99,14 @@ public class DefaultClientSideFuture<T> implements Future<T> {
     public synchronized boolean setException(InterruptedException ex) {
         if (this.isDone) return false;
         this.interruptedException = ex;
+        this.isError = true;
+        harden();
+        return true;
+    }
+
+    public synchronized boolean setException(IOException ex) {
+        if (this.isDone) return false;
+        this.ioException = ex;
         this.isError = true;
         harden();
         return true;

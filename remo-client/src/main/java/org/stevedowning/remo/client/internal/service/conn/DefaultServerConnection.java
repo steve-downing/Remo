@@ -2,12 +2,14 @@ package org.stevedowning.remo.client.internal.service.conn;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.stevedowning.remo.client.internal.future.DefaultClientSideFuture;
 import org.stevedowning.remo.common.request.RequestBatch;
 import org.stevedowning.remo.common.response.ResponseBatch;
+import org.stevedowning.remo.common.responsehandlers.Future;
 import org.stevedowning.remo.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.common.serial.SerializationManager;
 
@@ -33,13 +35,20 @@ public class DefaultServerConnection implements ServerConnection {
     }
 
     @Override
-    public CancellableFuture<ResponseBatch> send(final RequestBatch requestBatch) {
-        final DefaultClientSideFuture<String> future = new DefaultClientSideFuture<String>();
+    public Future<ResponseBatch> send(final RequestBatch requestBatch) {
+        final DefaultClientSideFuture<ResponseBatch> future =
+                new DefaultClientSideFuture<>(executorService);
         try {
             final Socket socket = new Socket(hostname, port);
+            
             future.addCancellationAction(new Runnable() {
                 public void run() {
-                    socket.close();
+                    // Closing the socket will cause any pending serializations to throw an error.
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // Nothing to do here.
+                    }
                 }
             });
             executorService.submit(new Runnable() {
@@ -51,8 +60,14 @@ public class DefaultServerConnection implements ServerConnection {
                         future.setVal(responseBatch);
                     } catch (IOException e) {
                         future.setException(e);
+                    } catch (ClassNotFoundException e) {
+                        future.setException(new ExecutionException(e));
                     } finally {
-                        socket.close();
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            // Nothing to do here.
+                        }
                     }
                 }
             });

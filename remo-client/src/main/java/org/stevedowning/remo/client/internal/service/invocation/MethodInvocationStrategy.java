@@ -1,14 +1,17 @@
 package org.stevedowning.remo.client.internal.service.invocation;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutionException;
 
-import org.stevedowning.remo.client.internal.service.conn.ServerConnection;
+import org.stevedowning.commons.idyll.idfactory.IdFactory;
+import org.stevedowning.remo.client.internal.service.ServiceContext;
 import org.stevedowning.remo.common.serial.SerializationManager;
 
 public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);
-    public Object handleMethodInvocation(ServerConnection conn,
-            SerializationManager serializationManager, SuperserviceContext superserviceContext,
+    public Object getVal(IdFactory idFactory, RequestHandler requestHandler,
+            SerializationManager serializationManager, ServiceContext serviceContext,
             Method method, Object[] args)
-                    throws Exception;
+                    throws IOException, InterruptedException, ExecutionException;
 }
