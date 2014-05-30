@@ -1,11 +1,12 @@
-package org.stevedowning.remo.common.responsehandlers;
+package org.stevedowning.remo.common.future;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-import org.stevedowning.remo.common.future.BasicFuture;
+import org.stevedowning.remo.common.responsehandlers.Callback;
+import org.stevedowning.remo.common.responsehandlers.Response;
 
 public interface Future<T> extends Response<T> {
     public T get(long timeout, TimeUnit unit)
