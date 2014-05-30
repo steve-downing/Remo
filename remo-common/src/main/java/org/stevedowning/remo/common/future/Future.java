@@ -3,7 +3,6 @@ package org.stevedowning.remo.common.future;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 import org.stevedowning.remo.common.responsehandlers.Callback;
 import org.stevedowning.remo.common.responsehandlers.Response;
@@ -22,7 +21,7 @@ public interface Future<T> extends Response<T> {
      * @param transformFunction The function used to transform this Future's result into another.
      * @return A new Future that promises the transformed result.
      */
-    default public <U> Future<U> transform(final Function<T, U> transformFunction) {
+    default public <U> Future<U> transform(final ThrowingFunction<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
         addCallback((Response<T> response) -> {
             boolean gotPreVal = false;
