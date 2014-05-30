@@ -1,4 +1,4 @@
-package org.stevedowning.remo.client.internal.service;
+package org.stevedowning.remo.client;
 
 import java.util.concurrent.TimeUnit;
 

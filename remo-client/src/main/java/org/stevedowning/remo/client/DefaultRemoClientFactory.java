@@ -1,11 +1,10 @@
-package org.stevedowning.remo.client.internal;
+package org.stevedowning.remo.client;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
 import org.stevedowning.remo.client.internal.service.ServiceContext;
-import org.stevedowning.remo.client.internal.service.ServiceHook;
 import org.stevedowning.remo.client.internal.service.ServiceProxy;
 import org.stevedowning.remo.client.internal.service.conn.DefaultServerConnection;
 import org.stevedowning.remo.client.internal.service.conn.ServerConnection;

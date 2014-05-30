@@ -1,8 +1,6 @@
-package org.stevedowning.remo.client.internal;
+package org.stevedowning.remo.client;
 
 import java.io.IOException;
-
-import org.stevedowning.remo.client.internal.service.ServiceHook;
 
 public interface RemoClientFactory {
     public <T> T getRemoteService(Class<T> serviceType, String hostname, int port)
