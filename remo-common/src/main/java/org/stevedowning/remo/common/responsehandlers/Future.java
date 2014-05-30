@@ -23,21 +23,19 @@ public interface Future<T> extends Response<T> {
      */
     default public <U> Future<U> transform(final Function<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
-        addCallback(new Callback<T>() {
-            public void handleResponse(Response<T> response) {
-                try {
-                    U val = transformFunction.apply(response.get());
-                    future.setVal(val);
-                } catch (InterruptedException ex) {
-                    future.setException(ex);
-                } catch (ExecutionException ex) {
-                    future.setException(ex);
-                } catch (IOException ex) {
-                    future.setException(ex);
-                } catch (Exception ex) {
-                    // This should catch transformation errors.
-                    future.setException(new ExecutionException(ex));
-                }
+        addCallback((Response<T> response) -> {
+            try {
+                U val = transformFunction.apply(response.get());
+                future.setVal(val);
+            } catch (InterruptedException ex) {
+                future.setException(ex);
+            } catch (ExecutionException ex) {
+                future.setException(ex);
+            } catch (IOException ex) {
+                future.setException(ex);
+            } catch (Exception ex) {
+                // This should catch transformation errors.
+                future.setException(new ExecutionException(ex));
             }
         });
         addCancellationAction(() -> future.cancel());
