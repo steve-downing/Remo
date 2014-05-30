@@ -38,7 +38,7 @@ public interface Future<T> extends Response<T> {
             }
             if (gotPreVal) {
                 try {
-                    U postVal = transformFunction.apply(response.get());
+                    U postVal = transformFunction.apply(preVal);
                     future.setVal(postVal);
                 } catch (Exception ex) {
                     // This should catch transformation errors.
