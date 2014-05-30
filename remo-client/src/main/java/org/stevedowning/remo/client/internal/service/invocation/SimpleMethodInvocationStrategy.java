@@ -24,7 +24,8 @@ public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy 
         for (int i = 0; i < args.length; ++i) {
             serializedArgs[i] = serializationManager.serialize(args[i]);
         }
-        ConnectionRequest request = new ConnectionRequest(requestId, new ServiceMethodId(method), serializedArgs);
+        ConnectionRequest request =
+                new ConnectionRequest(requestId, new ServiceMethodId(method), serializedArgs);
         return requestHandler.submitRequest(request).get();
     }
 }
