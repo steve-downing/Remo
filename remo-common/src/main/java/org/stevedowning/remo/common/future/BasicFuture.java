@@ -10,12 +10,11 @@ import java.util.concurrent.TimeUnit;
 import org.stevedowning.remo.common.responsehandlers.Callback;
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isDone;
+    private volatile boolean isDone, isCancelled, isError;
     private volatile InterruptedException interruptedException;
     private volatile ExecutionException executionException;
     private volatile IOException ioException;
     private volatile T val;
-    private volatile boolean isError;
     private final CountDownLatch doneLatch;
 
     private final Collection<Callback<T>> callbacks;
@@ -23,6 +22,7 @@ public class BasicFuture<T> implements Future<T> {
 
     public BasicFuture() {
         isDone = false;
+        isCancelled = false;
         isError = false;
         interruptedException = null;
         executionException = null;
@@ -32,14 +32,19 @@ public class BasicFuture<T> implements Future<T> {
         doneLatch = new CountDownLatch(1);
     }
     
-    public BasicFuture<T> addCancellationAction(Runnable action) {
-        this.cancellationActions.add(action);
+    public synchronized BasicFuture<T> addCancellationAction(Runnable action) {
+        if (isCancelled) {
+            action.run();
+        } else {
+            this.cancellationActions.add(action);
+        }
         return this;
     }
 
     public boolean cancel() {
         if (isDone) return false;
         setException(new InterruptedException());
+        isCancelled = true;
         // TODO: Should the cancellation actions happen asynchronously?
         for (Runnable cancellationAction : cancellationActions) {
             cancellationAction.run();
