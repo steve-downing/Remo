@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.stevedowning.remo.client.internal.future.DefaultClientSideFuture;
+import org.stevedowning.remo.common.future.BasicFuture;
 import org.stevedowning.remo.common.request.RequestBatch;
 import org.stevedowning.remo.common.response.ResponseBatch;
 import org.stevedowning.remo.common.responsehandlers.Future;
@@ -36,7 +36,7 @@ public class DefaultServerConnection implements ServerConnection {
 
     @Override
     public Future<ResponseBatch> send(final RequestBatch requestBatch) {
-        final DefaultClientSideFuture<ResponseBatch> future = new DefaultClientSideFuture<>();
+        final BasicFuture<ResponseBatch> future = new BasicFuture<>();
         try {
             final Socket socket = new Socket(hostname, port);
             
