@@ -8,7 +8,10 @@ import org.stevedowning.commons.idyll.idfactory.LongIdFactory;
 import org.stevedowning.remo.client.internal.service.conn.ServerConnection;
 import org.stevedowning.remo.client.internal.service.invocation.MethodInvocationStrategy;
 import org.stevedowning.remo.client.internal.service.invocation.MethodInvocationStrategySelector;
+import org.stevedowning.remo.client.internal.service.invocation.RequestHandler;
 import org.stevedowning.remo.common.request.Request;
+import org.stevedowning.remo.common.request.RequestBatch;
+import org.stevedowning.remo.common.response.ResponseBatch;
 import org.stevedowning.remo.common.serial.SerializationManager;
 
 public class ServiceProxy implements InvocationHandler {
@@ -32,8 +35,12 @@ public class ServiceProxy implements InvocationHandler {
         if (args == null) {
             args = new Object[] {};
         }
+        RequestHandler requestHandler = (Request request) -> {
+            RequestBatch requestBatch = new RequestBatch(idFactory.generateId());
+            return conn.send(requestBatch).transform(
+                    (ResponseBatch responseBatch) -> responseBatch.get(request.getId()));
+        };
         return strategy.getVal(idFactory, requestHandler, serializationManager, serviceContext,
                 method, args);
     }
-
 }
