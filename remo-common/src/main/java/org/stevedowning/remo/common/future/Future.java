@@ -48,6 +48,7 @@ public interface Future<T> extends Response<T> {
             }
         });
         addCancellationAction(() -> future.cancel());
+        future.addCancellationAction(() -> cancel());
         return future;
     }
 }
