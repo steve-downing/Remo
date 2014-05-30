@@ -5,9 +5,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.common.responsehandlers.Callback;
-import org.stevedowning.remo.common.responsehandlers.Response;
+import org.stevedowning.remo.common.responsehandlers.Result;
 
-public interface Future<T> extends Response<T> {
+public interface Future<T> extends Result<T> {
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, IOException;
     public Future<T> addCallback(Callback<T> callback);
@@ -23,7 +23,7 @@ public interface Future<T> extends Response<T> {
      */
     default public <U> Future<U> transform(final ThrowingFunction<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
-        addCallback((Response<T> response) -> {
+        addCallback((Result<T> response) -> {
             boolean gotPreVal = false;
             T preVal = null;
             try {
