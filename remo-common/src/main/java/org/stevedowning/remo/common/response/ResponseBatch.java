@@ -29,4 +29,7 @@ public class ResponseBatch {
     }
     
     public synchronized boolean isDone() { return responses.size() == numExpectedResults; }
+    public Response get(Id<Request> requestId) {
+        return responses.get(requestId);
+    }
 }
