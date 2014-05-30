@@ -14,8 +14,6 @@ import org.stevedowning.remo.common.responsehandlers.CancelResult;
 import org.stevedowning.remo.common.responsehandlers.Future;
 
 public class DefaultClientSideFuture<T> implements Future<T> {
-    private final ExecutorService executorService;
-    
     private volatile boolean isDone;
     private volatile InterruptedException interruptedException;
     private volatile ExecutionException executionException;
@@ -27,8 +25,7 @@ public class DefaultClientSideFuture<T> implements Future<T> {
     private final Collection<Callback<T>> callbacks;
     private final Collection<Runnable> cancellationActions;
 
-    public DefaultClientSideFuture(ExecutorService executorService) {
-        this.executorService = executorService;
+    public DefaultClientSideFuture() {
         isDone = false;
         isError = false;
         interruptedException = null;
@@ -145,8 +142,7 @@ public class DefaultClientSideFuture<T> implements Future<T> {
         // TODO: Should this return and object that keeps track of the various stages of
         //       cancellation success and failure?
         cancel();
-        DefaultClientSideFuture<CancelResult> future =
-                new DefaultClientSideFuture<CancelResult>(executorService);
+        DefaultClientSideFuture<CancelResult> future = new DefaultClientSideFuture<CancelResult>();
         future.setVal(CancelResult.CANCEL_ON_CLIENT_ONLY);
         return future;
     }

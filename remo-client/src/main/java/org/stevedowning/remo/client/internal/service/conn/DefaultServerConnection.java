@@ -36,8 +36,7 @@ public class DefaultServerConnection implements ServerConnection {
 
     @Override
     public Future<ResponseBatch> send(final RequestBatch requestBatch) {
-        final DefaultClientSideFuture<ResponseBatch> future =
-                new DefaultClientSideFuture<>(executorService);
+        final DefaultClientSideFuture<ResponseBatch> future = new DefaultClientSideFuture<>();
         try {
             final Socket socket = new Socket(hostname, port);
             
