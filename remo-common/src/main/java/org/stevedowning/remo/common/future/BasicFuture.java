@@ -56,22 +56,26 @@ public class BasicFuture<T> implements Future<T> {
             invokeCallback(callback);
         } else {
             callbacks.offer(callback);
-            // Clear this callback out if we hit the race condition that leaves this callback in
+            // Clear this callback out if we've hit the race condition that leaves this callback in
             // the queue after we think we're done pumping them all out.
-            if (isDone) invokeCallbacks();
+            if (isDone && callbacks.remove(callback)) {
+                invokeCallback(callback);
+            }
         }
         return this;
     }
     
-    public synchronized BasicFuture<T> addCancellationAction(Runnable action) {
+    public BasicFuture<T> addCancellationAction(Runnable action) {
         if (action == null) return this;
         if (isCancelled) {
             action.run();
         } else if (!isDone) {
             this.cancellationActions.offer(action);
-            // Clear this callback out if we hit the race condition that leaves this callback in
+            // Clear this callback out if we've hit the race condition that leaves this callback in
             // the queue after we think we're done pumping them all out.
-            if (isDone) invokeCallbacks();
+            if (isDone && cancellationActions.remove(action)) {
+                action.run();
+            }
         }
         return this;
     }
