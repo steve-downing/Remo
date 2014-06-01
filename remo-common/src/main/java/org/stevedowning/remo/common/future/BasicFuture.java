@@ -1,8 +1,8 @@
 package org.stevedowning.remo.common.future;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -17,8 +17,8 @@ public class BasicFuture<T> implements Future<T> {
     private volatile T val;
     private final CountDownLatch doneLatch;
 
-    private final Collection<Callback<T>> callbacks;
-    private final Collection<Runnable> cancellationActions;
+    private final Queue<Callback<T>> callbacks;
+    private final Queue<Runnable> cancellationActions;
 
     public BasicFuture() {
         isDone = false;
@@ -27,21 +27,15 @@ public class BasicFuture<T> implements Future<T> {
         interruptedException = null;
         executionException = null;
         val = null;
-        callbacks = new LinkedList<Callback<T>>();
-        cancellationActions = new LinkedList<Runnable>();
+        callbacks = new ConcurrentLinkedQueue<Callback<T>>();
+        cancellationActions = new ConcurrentLinkedQueue<Runnable>();
         doneLatch = new CountDownLatch(1);
-    }
-    
-    public synchronized BasicFuture<T> addCancellationAction(Runnable action) {
-        if (isCancelled) {
-            action.run();
-        } else {
-            this.cancellationActions.add(action);
-        }
-        return this;
     }
 
     public boolean cancel() {
+        // This is to avoid the potentially blocking call to setException.
+        if (isDone) return false;
+
         if (setException(new InterruptedException())) {
             isCancelled = true;
             // TODO: Should the cancellation actions happen asynchronously?
@@ -56,11 +50,28 @@ public class BasicFuture<T> implements Future<T> {
     
     public boolean isError() { return isError; }
 
-    public synchronized BasicFuture<T> addCallback(Callback<T> callback) {
+    public BasicFuture<T> addCallback(Callback<T> callback) {
+        if (callback == null) return this;
         if (isDone) {
             invokeCallback(callback);
         } else {
-            callbacks.add(callback);
+            callbacks.offer(callback);
+            // Clear this callback out if we hit the race condition that leaves this callback in
+            // the queue after we think we're done pumping them all out.
+            if (isDone) invokeCallbacks();
+        }
+        return this;
+    }
+    
+    public synchronized BasicFuture<T> addCancellationAction(Runnable action) {
+        if (action == null) return this;
+        if (isCancelled) {
+            action.run();
+        } else if (!isDone) {
+            this.cancellationActions.offer(action);
+            // Clear this callback out if we hit the race condition that leaves this callback in
+            // the queue after we think we're done pumping them all out.
+            if (isDone) invokeCallbacks();
         }
         return this;
     }
@@ -90,32 +101,32 @@ public class BasicFuture<T> implements Future<T> {
     public boolean isDone() { return isDone; }
 
     public synchronized boolean setVal(T val) {
-        if (this.isDone) return false;
+        if (isDone) return false;
         this.val = val;
         harden();
         return true;
     }
 
     public synchronized boolean setException(InterruptedException ex) {
-        if (this.isDone) return false;
-        this.interruptedException = ex;
-        this.isError = true;
+        if (isDone) return false;
+        interruptedException = ex;
+        isError = true;
         harden();
         return true;
     }
 
     public synchronized boolean setException(IOException ex) {
-        if (this.isDone) return false;
-        this.ioException = ex;
-        this.isError = true;
+        if (isDone) return false;
+        ioException = ex;
+        isError = true;
         harden();
         return true;
     }
 
     public synchronized boolean setException(ExecutionException ex) {
-        if (this.isDone) return false;
-        this.executionException = ex;
-        this.isError = true;
+        if (isDone) return false;
+        executionException = ex;
+        isError = true;
         harden();
         return true;
     }
@@ -124,13 +135,20 @@ public class BasicFuture<T> implements Future<T> {
      * Lock down this future. It's already received its result. It's no longer mutable.
      */
     private synchronized void harden() {
-        this.isDone = true;
-        this.doneLatch.countDown();
+        isDone = true;
+        doneLatch.countDown();
         invokeCallbacks();
     }
 
     private void invokeCallbacks() {
-        for (Callback<T> callback : callbacks) {
+        if (isCancelled) {
+            for (Runnable action; (action = cancellationActions.poll()) != null;) {
+                action.run();
+            }
+        } else {
+            cancellationActions.clear();
+        }
+        for (Callback<T> callback; (callback = callbacks.poll()) != null;) {
             invokeCallback(callback);
         }
     }
