@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
+import org.stevedowning.remo.client.internal.conn.DefaultServerConnection;
+import org.stevedowning.remo.client.internal.conn.ServerConnection;
 import org.stevedowning.remo.client.internal.service.ServiceContext;
 import org.stevedowning.remo.client.internal.service.ServiceProxy;
-import org.stevedowning.remo.client.internal.service.conn.DefaultServerConnection;
-import org.stevedowning.remo.client.internal.service.conn.ServerConnection;
 import org.stevedowning.remo.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.common.serial.SerializationManager;
 

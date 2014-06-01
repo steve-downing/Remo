@@ -5,10 +5,10 @@ import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.commons.idyll.idfactory.LongIdFactory;
-import org.stevedowning.remo.client.internal.service.conn.ServerConnection;
-import org.stevedowning.remo.client.internal.service.invocation.MethodInvocationStrategy;
-import org.stevedowning.remo.client.internal.service.invocation.MethodInvocationStrategySelector;
-import org.stevedowning.remo.client.internal.service.invocation.RequestHandler;
+import org.stevedowning.remo.client.internal.conn.ServerConnection;
+import org.stevedowning.remo.client.internal.invocation.MethodInvocationStrategy;
+import org.stevedowning.remo.client.internal.invocation.MethodInvocationStrategySelector;
+import org.stevedowning.remo.client.internal.invocation.RequestHandler;
 import org.stevedowning.remo.common.request.Request;
 import org.stevedowning.remo.common.request.RequestBatch;
 import org.stevedowning.remo.common.response.ResponseBatch;
