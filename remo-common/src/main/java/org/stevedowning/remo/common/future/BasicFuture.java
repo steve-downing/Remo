@@ -21,6 +21,7 @@ public class BasicFuture<T> implements Future<T> {
     private final Queue<Runnable> cancellationActions;
 
     // TODO: Allow the client to provide an optional executor service that runs callbacks.
+    //       Watch out for deadlock opportunities when this happens.
     public BasicFuture() {
         isDone = false;
         isCancelled = false;
