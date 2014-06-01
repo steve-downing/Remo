@@ -42,14 +42,16 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public boolean cancel() {
-        if (isDone) return false;
-        setException(new InterruptedException());
-        isCancelled = true;
-        // TODO: Should the cancellation actions happen asynchronously?
-        for (Runnable cancellationAction : cancellationActions) {
-            cancellationAction.run();
+        if (setException(new InterruptedException())) {
+            isCancelled = true;
+            // TODO: Should the cancellation actions happen asynchronously?
+            for (Runnable cancellationAction : cancellationActions) {
+                cancellationAction.run();
+            }
+            return true;
+        } else {
+            return false;
         }
-        return true;
     }
     
     public boolean isError() { return isError; }
