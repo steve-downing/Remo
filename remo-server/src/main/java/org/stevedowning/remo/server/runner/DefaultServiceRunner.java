@@ -9,10 +9,10 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.stevedowning.remo.common.request.ConnectionRequest;
-import org.stevedowning.remo.common.request.ConnectionRequestBatch;
-import org.stevedowning.remo.common.response.ConnectionResponse;
-import org.stevedowning.remo.common.response.ConnectionResponseBatch;
+import org.stevedowning.remo.common.request.Request;
+import org.stevedowning.remo.common.request.RequestBatch;
+import org.stevedowning.remo.common.response.Response;
+import org.stevedowning.remo.common.response.ResponseBatch;
 import org.stevedowning.remo.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.common.serial.SerializationManager;
 import org.stevedowning.remo.server.service.ServiceInterface;
@@ -70,8 +70,8 @@ public class DefaultServiceRunner implements ServiceRunner {
         return serviceLoop;
     }
     
-    private void handleRequest(ServiceInterface service, ConnectionResponseBatch responseBatch,
-            ConnectionRequest request) throws IOException {
+    private void handleRequest(ServiceInterface service, ResponseBatch responseBatch,
+            Request request) throws IOException {
         boolean success = true;
         Object result = null;
         try {
@@ -85,11 +85,11 @@ public class DefaultServiceRunner implements ServiceRunner {
         // TODO: Optionally sanitize exceptions here.
         // TODO: Exceptions don't seem to be deserializing correctly.
         String resultStr = serializationManager.serialize(result);
-        ConnectionResponse response = new ConnectionResponse(request.getId(), resultStr, success);
+        Response response = new Response(request.getId(), resultStr, success);
         responseBatch.addResponse(response);
     }
 
-    private Object getServiceRetVal(ServiceInterface service, ConnectionRequest request)
+    private Object getServiceRetVal(ServiceInterface service, Request request)
             throws Exception {
         String[] serializedParams = request.getSerializedParams();
         Object[] params = new Object[serializedParams.length];
@@ -108,11 +108,11 @@ public class DefaultServiceRunner implements ServiceRunner {
                 PrintWriter out = null;
                 try {
                     in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    ConnectionRequestBatch requestBatch =
+                    RequestBatch requestBatch =
                             serializationManager.deserialize(clientSocket.getInputStream());
-                    ConnectionResponseBatch responseBatch = ConnectionResponseBatch.forRequestBatch(requestBatch);
+                    ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
                     // TODO: Delegate these requests to different threads.
-                    for (ConnectionRequest request : requestBatch.getRequests()) {
+                    for (Request request : requestBatch.getRequests()) {
                         handleRequest(service, responseBatch, request);
                     }
                     // TODO: Serialize the individual responses out as they become available

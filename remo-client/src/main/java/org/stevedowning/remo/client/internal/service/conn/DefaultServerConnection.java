@@ -8,8 +8,8 @@ import java.util.concurrent.Executors;
 
 import org.stevedowning.remo.common.future.BasicFuture;
 import org.stevedowning.remo.common.future.Future;
-import org.stevedowning.remo.common.request.ConnectionRequestBatch;
-import org.stevedowning.remo.common.response.ConnectionResponseBatch;
+import org.stevedowning.remo.common.request.RequestBatch;
+import org.stevedowning.remo.common.response.ResponseBatch;
 import org.stevedowning.remo.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.common.serial.SerializationManager;
 
@@ -35,8 +35,8 @@ public class DefaultServerConnection implements ServerConnection {
     }
 
     @Override
-    public Future<ConnectionResponseBatch> send(final ConnectionRequestBatch requestBatch) {
-        final BasicFuture<ConnectionResponseBatch> future = new BasicFuture<>();
+    public Future<ResponseBatch> send(final RequestBatch requestBatch) {
+        final BasicFuture<ResponseBatch> future = new BasicFuture<>();
         try {
             final Socket socket = new Socket(hostname, port);
             
@@ -54,7 +54,7 @@ public class DefaultServerConnection implements ServerConnection {
                 public void run() {
                     try {
                         serializationManager.serialize(socket.getOutputStream(), requestBatch);
-                        ConnectionResponseBatch responseBatch =
+                        ResponseBatch responseBatch =
                                 serializationManager.deserialize(socket.getInputStream());
                         future.setVal(responseBatch);
                     } catch (IOException e) {
