@@ -1,5 +1,6 @@
 package org.stevedowning.remo.common.request;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,7 +9,7 @@ import org.stevedowning.commons.idyll.Identifiable;
 import org.stevedowning.commons.idyll.datastructures.IdMap;
 import org.stevedowning.commons.idyll.datastructures.LinkedHashIdMap;
 
-public class RequestBatch implements Identifiable<RequestBatch> {
+public class RequestBatch implements Identifiable<RequestBatch>, Iterable<Request> {
     private final Id<RequestBatch> id;
     private final IdMap<Request> requests;
     
@@ -25,4 +26,5 @@ public class RequestBatch implements Identifiable<RequestBatch> {
         return new LinkedList<Request>(requests.values());
     }
     public int size() { return requests.size(); }
+    public Iterator<Request> iterator() { return requests.iterator(); }
 }
