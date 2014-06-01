@@ -37,13 +37,7 @@ public class BasicFuture<T> implements Future<T> {
     public boolean cancel() {
         // This is to avoid the potentially blocking call to setException.
         if (isDone) return false;
-
-        isCancelled = true;
-        if (setException(new InterruptedException())) {
-            return true;
-        } else {
-            return false;
-        }
+        return setCancelled();
     }
     
     public boolean isError() { return isError; }
@@ -107,6 +101,12 @@ public class BasicFuture<T> implements Future<T> {
         this.val = val;
         harden();
         return true;
+    }
+    
+    private synchronized boolean setCancelled() {
+        if (isDone) return false;
+        isCancelled = true;
+        return setException(new InterruptedException());
     }
 
     public synchronized boolean setException(InterruptedException ex) {
