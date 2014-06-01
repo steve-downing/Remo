@@ -20,6 +20,7 @@ public class BasicFuture<T> implements Future<T> {
     private final Queue<Callback<T>> callbacks;
     private final Queue<Runnable> cancellationActions;
 
+    // TODO: Allow the client to provide an optional executor service that runs callbacks.
     public BasicFuture() {
         isDone = false;
         isCancelled = false;
@@ -36,12 +37,8 @@ public class BasicFuture<T> implements Future<T> {
         // This is to avoid the potentially blocking call to setException.
         if (isDone) return false;
 
+        isCancelled = true;
         if (setException(new InterruptedException())) {
-            isCancelled = true;
-            // TODO: Should the cancellation actions happen asynchronously?
-            for (Runnable cancellationAction : cancellationActions) {
-                cancellationAction.run();
-            }
             return true;
         } else {
             return false;
@@ -73,7 +70,7 @@ public class BasicFuture<T> implements Future<T> {
             this.cancellationActions.offer(action);
             // Clear this callback out if we've hit the race condition that leaves this callback in
             // the queue after we think we're done pumping them all out.
-            if (isDone && cancellationActions.remove(action)) {
+            if (isCancelled && cancellationActions.remove(action)) {
                 action.run();
             }
         }
