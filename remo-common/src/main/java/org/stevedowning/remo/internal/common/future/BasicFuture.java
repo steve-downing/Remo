@@ -62,8 +62,8 @@ public class BasicFuture<T> implements Future<T> {
         if (action == null) return this;
         if (isCancelled) {
             action.run();
-        } else if (!isDone) {
-            this.cancellationActions.offer(action);
+        } else {
+            if (!isDone) this.cancellationActions.offer(action);
             // Clear this callback out if we've hit the race condition that leaves this callback in
             // the queue after we think we're done pumping them all out.
             if (isCancelled && cancellationActions.remove(action)) {
