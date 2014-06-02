@@ -1,4 +1,4 @@
-package org.stevedowning.remo.client.internal.invocation;
+package org.stevedowning.remo.internal.client.invocation;
 
 import org.stevedowning.remo.common.future.Future;
 import org.stevedowning.remo.common.request.Request;

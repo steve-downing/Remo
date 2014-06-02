@@ -1,4 +1,4 @@
-package org.stevedowning.remo.client.internal.conn;
+package org.stevedowning.remo.internal.client.conn;
 
 import java.io.IOException;
 import java.net.Socket;

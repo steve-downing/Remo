@@ -1,4 +1,4 @@
-package org.stevedowning.remo.client.internal.conn;
+package org.stevedowning.remo.internal.client.conn;
 
 import org.stevedowning.remo.common.future.Future;
 import org.stevedowning.remo.common.request.RequestBatch;
