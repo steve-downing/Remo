@@ -6,8 +6,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.stevedowning.remo.Future;
 import org.stevedowning.remo.internal.common.future.BasicFuture;
-import org.stevedowning.remo.internal.common.future.Future;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
