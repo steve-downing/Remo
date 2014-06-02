@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.future;
+package org.stevedowning.remo.internal.common.future;
 
 import java.io.IOException;
 import java.util.Queue;
@@ -7,7 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.stevedowning.remo.common.responsehandlers.Callback;
+import org.stevedowning.remo.internal.common.responsehandlers.Callback;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isDone, isCancelled, isError;

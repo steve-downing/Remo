@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.serial;
+package org.stevedowning.remo.internal.common.serial;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

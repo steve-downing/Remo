@@ -1,7 +1,7 @@
-package org.stevedowning.remo.common.response;
+package org.stevedowning.remo.internal.common.response;
 
 import org.stevedowning.commons.idyll.Id;
-import org.stevedowning.remo.common.request.Request;
+import org.stevedowning.remo.internal.common.request.Request;
 
 public class Response {
     private final Id<Request> requestId;

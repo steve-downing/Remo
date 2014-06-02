@@ -1,12 +1,12 @@
-package org.stevedowning.remo.common.response;
+package org.stevedowning.remo.internal.common.response;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.stevedowning.commons.idyll.Id;
-import org.stevedowning.remo.common.request.Request;
-import org.stevedowning.remo.common.request.RequestBatch;
+import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.request.RequestBatch;
 
 public class ResponseBatch implements Iterable<Response> {
     private final Id<RequestBatch> requestBatchId;

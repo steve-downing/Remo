@@ -6,10 +6,10 @@ import java.util.concurrent.ExecutionException;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
-import org.stevedowning.remo.common.request.Request;
-import org.stevedowning.remo.common.serial.SerializationManager;
-import org.stevedowning.remo.common.service.ServiceMethodId;
 import org.stevedowning.remo.internal.client.service.ServiceContext;
+import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
 public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) { return true; }

@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.responsehandlers;
+package org.stevedowning.remo.internal.common.responsehandlers;
 
 public class CancelOptions {
 // TODO: Fill this in. Will the cancel request attempt to terminate an already-running process on

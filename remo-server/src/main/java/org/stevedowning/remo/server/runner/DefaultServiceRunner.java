@@ -9,12 +9,12 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.stevedowning.remo.common.request.Request;
-import org.stevedowning.remo.common.request.RequestBatch;
-import org.stevedowning.remo.common.response.Response;
-import org.stevedowning.remo.common.response.ResponseBatch;
-import org.stevedowning.remo.common.serial.DefaultSerializationManager;
-import org.stevedowning.remo.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.request.RequestBatch;
+import org.stevedowning.remo.internal.common.response.Response;
+import org.stevedowning.remo.internal.common.response.ResponseBatch;
+import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
+import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.server.service.ServiceInterface;
 
 public class DefaultServiceRunner implements ServiceRunner {

@@ -6,12 +6,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.stevedowning.remo.common.future.BasicFuture;
-import org.stevedowning.remo.common.future.Future;
-import org.stevedowning.remo.common.request.RequestBatch;
-import org.stevedowning.remo.common.response.ResponseBatch;
-import org.stevedowning.remo.common.serial.DefaultSerializationManager;
-import org.stevedowning.remo.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.future.BasicFuture;
+import org.stevedowning.remo.internal.common.future.Future;
+import org.stevedowning.remo.internal.common.request.RequestBatch;
+import org.stevedowning.remo.internal.common.response.ResponseBatch;
+import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
+import org.stevedowning.remo.internal.common.serial.SerializationManager;
 
 public class DefaultServerConnection implements ServerConnection {
     private final SerializationManager serializationManager = new DefaultSerializationManager();

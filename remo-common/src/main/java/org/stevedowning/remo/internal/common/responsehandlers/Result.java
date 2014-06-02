@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.responsehandlers;
+package org.stevedowning.remo.internal.common.responsehandlers;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;

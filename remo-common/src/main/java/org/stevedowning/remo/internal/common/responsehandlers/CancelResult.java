@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.responsehandlers;
+package org.stevedowning.remo.internal.common.responsehandlers;
 
 public class CancelResult {
     private final boolean cancelSucceededOnServer, cancelRequestedOnServer, cancelRequestedOnClient;

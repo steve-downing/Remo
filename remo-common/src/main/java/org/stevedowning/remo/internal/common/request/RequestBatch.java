@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.request;
+package org.stevedowning.remo.internal.common.request;
 
 import java.util.Iterator;
 import java.util.LinkedList;

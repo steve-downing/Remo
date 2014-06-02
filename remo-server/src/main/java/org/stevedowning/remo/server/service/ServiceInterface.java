@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.datastructures.HashIdMap;
 import org.stevedowning.commons.idyll.datastructures.IdMap;
-import org.stevedowning.remo.common.service.ServiceMethod;
-import org.stevedowning.remo.common.service.ServiceMethodId;
+import org.stevedowning.remo.internal.common.service.ServiceMethod;
+import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
 public class ServiceInterface {
     private final Object handler;

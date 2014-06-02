@@ -1,4 +1,4 @@
-package org.stevedowning.remo.common.future;
+package org.stevedowning.remo.internal.common.future;
 
 @FunctionalInterface
 public interface ThrowingFunction<T, U> {
