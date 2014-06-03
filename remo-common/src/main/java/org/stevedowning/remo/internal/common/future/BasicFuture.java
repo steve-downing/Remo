@@ -49,8 +49,8 @@ public class BasicFuture<T> implements Future<T> {
             invokeCallback(callback);
         } else {
             callbacks.offer(callback);
-            // Clear this callback out if we've hit the race condition that leaves this callback in
-            // the queue after we think we're done pumping them all out.
+            // Clear this callback out if we've hit the race condition that leaves it in
+            // the queue after we think we're done pumping everything out.
             if (isDone && callbacks.remove(callback)) {
                 invokeCallback(callback);
             }
@@ -64,10 +64,10 @@ public class BasicFuture<T> implements Future<T> {
             action.run();
         } else {
             if (!isDone) this.cancellationActions.offer(action);
-            // Clear this callback out if we've hit the race condition that leaves this callback in
-            // the queue after we think we're done pumping them all out.
-            if (isCancelled && cancellationActions.remove(action)) {
-                action.run();
+            // Clear this action out if we've hit the race condition that leaves it in
+            // the queue after we think we're done pumping everything out.
+            if (isDone && cancellationActions.remove(action)) {
+                if (isCancelled) action.run();
             }
         }
         return this;
