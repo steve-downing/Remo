@@ -36,7 +36,7 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public boolean cancel() {
-        // This is to avoid the potentially blocking call to setException.
+        // Quick check to avoid a potentially blocking call.
         if (isDone) return false;
         return setCancelled();
     }
