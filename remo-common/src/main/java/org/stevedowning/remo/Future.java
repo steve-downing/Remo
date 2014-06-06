@@ -25,24 +25,27 @@ public interface Future<T> extends Result<T> {
     default public <U> BasicFuture<U> transform(final ThrowingFunction<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
         addCallback((Result<T> result) -> {
-            try {
-                T preVal = result.get();
+            if (isCancelled()) {
+                future.cancel();
+            } else {
                 try {
-                    U postVal = transformFunction.apply(preVal);
-                    future.setVal(postVal);
-                } catch (Exception ex) {
-                    // This should catch transformation errors.
-                    future.setException(new ExecutionException(ex));
+                    T preVal = result.get();
+                    try {
+                        U postVal = transformFunction.apply(preVal);
+                        future.setVal(postVal);
+                    } catch (Exception ex) {
+                        // This should catch transformation errors.
+                        future.setException(new ExecutionException(ex));
+                    }
+                } catch (InterruptedException ex) {
+                    future.setException(ex);
+                } catch (ExecutionException ex) {
+                    future.setException(ex);
+                } catch (IOException ex) {
+                    future.setException(ex);
                 }
-            } catch (InterruptedException ex) {
-                future.setException(ex);
-            } catch (ExecutionException ex) {
-                future.setException(ex);
-            } catch (IOException ex) {
-                future.setException(ex);
             }
         });
-        addCancellationAction(() -> future.cancel());
         future.addCancellationAction(() -> cancel());
         return future;
     }
