@@ -12,6 +12,8 @@ public interface Future<T> extends Result<T> {
     public Future<T> addCallback(Callback<T> callback);
     public Future<T> addCancellationAction(Runnable action);
     public boolean isDone();
+    public boolean isError();
+    public boolean isCancelled();
     public boolean cancel();
 
     /**

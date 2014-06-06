@@ -41,8 +41,6 @@ public class BasicFuture<T> implements Future<T> {
         return setCancelled();
     }
     
-    public boolean isError() { return isError; }
-
     public BasicFuture<T> addCallback(Callback<T> callback) {
         if (callback == null) return this;
         if (isDone) {
@@ -96,6 +94,9 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public boolean isDone() { return isDone; }
+    public boolean isError() { return isError; }
+    public boolean isCancelled() { return isError; }
+    public boolean isSuccess() { return isDone && !isError && !isCancelled; }
 
     public synchronized boolean setVal(T val) {
         if (isDone) return false;
@@ -113,7 +114,7 @@ public class BasicFuture<T> implements Future<T> {
     public synchronized boolean setException(InterruptedException ex) {
         if (isDone) return false;
         interruptedException = ex;
-        isError = true;
+        isError = !isCancelled; // Importantly, cancellation isn't an error state.
         harden();
         return true;
     }
