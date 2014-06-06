@@ -27,7 +27,7 @@ public class BasicFuture<T> implements Future<T> {
 
     // TODO: Allow the client to provide an optional executor service that runs callbacks.
     //       Watch out for deadlock opportunities when this happens.
-    public BasicFuture() {
+    public BasicFuture(ExecutorService executorService) {
         isDone = false;
         isCancelled = false;
         isError = false;
@@ -36,12 +36,11 @@ public class BasicFuture<T> implements Future<T> {
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
-        executorService = null;
+        this.executorService = executorService;
     }
     
-    public BasicFuture(ExecutorService executorService) {
-        this();
-        this.executorService = executorService;
+    public BasicFuture() {
+        this(null);
     }
 
     public boolean cancel() {
