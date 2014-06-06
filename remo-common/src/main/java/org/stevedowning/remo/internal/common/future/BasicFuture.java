@@ -151,6 +151,6 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     private void invokeCallback(Callback<T> callback) {
-        callback.handleResponse(this);
+        callback.handleResult(this);
     }
 }
