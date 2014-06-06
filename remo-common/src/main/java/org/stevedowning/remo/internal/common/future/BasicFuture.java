@@ -95,7 +95,7 @@ public class BasicFuture<T> implements Future<T> {
 
     public boolean isDone() { return isDone; }
     public boolean isError() { return isError; }
-    public boolean isCancelled() { return isError; }
+    public boolean isCancelled() { return isCancelled; }
     public boolean isSuccess() { return isDone && !isError && !isCancelled; }
 
     public synchronized boolean setVal(T val) {
