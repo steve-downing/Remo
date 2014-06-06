@@ -21,7 +21,6 @@ public class BasicFuture<T> implements Future<T> {
     private final CountDownLatch doneLatch;
 
     private final Queue<Callback<T>> callbacks;
-    private final Queue<Runnable> cancellationActions;
 
     // TODO: Allow the client to provide an optional executor service that runs callbacks.
     //       Watch out for deadlock opportunities when this happens.
@@ -33,7 +32,6 @@ public class BasicFuture<T> implements Future<T> {
         executionException = null;
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
-        cancellationActions = new ConcurrentLinkedQueue<Runnable>();
         doneLatch = new CountDownLatch(1);
     }
 
@@ -46,13 +44,13 @@ public class BasicFuture<T> implements Future<T> {
     public BasicFuture<T> addCallback(Callback<T> callback) {
         if (callback == null) return this;
         if (isDone) {
-            invokeCallback(callback);
+            callback.handleResult(this);
         } else {
             callbacks.offer(callback);
             // Clear this callback out if we've hit the race condition that leaves it in
             // the queue after we think we're done pumping everything out.
             if (isDone && callbacks.remove(callback)) {
-                invokeCallback(callback);
+                callback.handleResult(this);
             }
         }
         return this;
@@ -138,19 +136,8 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     private void invokeCallbacks() {
-        if (isCancelled) {
-            for (Runnable action; (action = cancellationActions.poll()) != null;) {
-                action.run();
-            }
-        } else {
-            cancellationActions.clear();
-        }
         for (Callback<T> callback; (callback = callbacks.poll()) != null;) {
-            invokeCallback(callback);
+            callback.handleResult(this);
         }
-    }
-
-    private void invokeCallback(Callback<T> callback) {
-        callback.handleResult(this);
     }
 }
