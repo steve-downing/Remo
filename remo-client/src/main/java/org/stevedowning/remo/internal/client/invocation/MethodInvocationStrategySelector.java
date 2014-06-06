@@ -3,10 +3,14 @@ package org.stevedowning.remo.internal.client.invocation;
 import java.lang.reflect.Method;
 
 public class MethodInvocationStrategySelector {
+    private final MethodInvocationStrategy[] strategies = {
+            new SimpleMethodInvocationStrategy()
+    };
 
     public MethodInvocationStrategy getStrategy(Method method) {
-        // TODO Auto-generated method stub
-        return null;
+        for (MethodInvocationStrategy strategy : strategies) {
+            if (strategy.canHandle(method)) return strategy;
+        }
+        return new NoMethodInvocationStrategy();
     }
-
 }
