@@ -5,11 +5,13 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
+import org.stevedowning.remo.ThrowingFunction;
 
 
 public class BasicFuture<T> implements Future<T> {
@@ -19,6 +21,7 @@ public class BasicFuture<T> implements Future<T> {
     private volatile IOException ioException;
     private volatile T val;
     private final CountDownLatch doneLatch;
+    private volatile ExecutorService executorService;
 
     private final Queue<Callback<T>> callbacks;
 
@@ -33,6 +36,12 @@ public class BasicFuture<T> implements Future<T> {
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
+        executorService = null;
+    }
+    
+    public BasicFuture(ExecutorService executorService) {
+        this();
+        this.executorService = executorService;
     }
 
     public boolean cancel() {
@@ -44,13 +53,13 @@ public class BasicFuture<T> implements Future<T> {
     public BasicFuture<T> addCallback(Callback<T> callback) {
         if (callback == null) return this;
         if (isDone) {
-            callback.handleResult(this);
+            invokeCallback(callback);
         } else {
             callbacks.offer(callback);
             // Clear this callback out if we've hit the race condition that leaves it in
             // the queue after we think we're done pumping everything out.
             if (isDone && callbacks.remove(callback)) {
-                callback.handleResult(this);
+                invokeCallback(callback);
             }
         }
         return this;
@@ -137,7 +146,21 @@ public class BasicFuture<T> implements Future<T> {
 
     private void invokeCallbacks() {
         for (Callback<T> callback; (callback = callbacks.poll()) != null;) {
-            callback.handleResult(this);
+            invokeCallback(callback);
         }
+    }
+
+    private void invokeCallback(Callback<T> callback) {
+        if (executorService == null) {
+            callback.handleResult(this);
+        } else {
+            executorService.submit(() -> callback.handleResult(this));
+        }
+    }
+    
+    public <U> BasicFuture<U> transform(final ThrowingFunction<T, U> transformFunction) {
+        BasicFuture<U> transformedFuture = Future.super.transform(transformFunction);
+        transformedFuture.executorService = executorService;
+        return transformedFuture;
     }
 }
