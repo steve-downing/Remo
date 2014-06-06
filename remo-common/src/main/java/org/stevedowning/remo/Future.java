@@ -22,9 +22,9 @@ public interface Future<T> extends Result<T> {
      */
     default public <U> Future<U> transform(final ThrowingFunction<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
-        addCallback((Result<T> response) -> {
+        addCallback((Result<T> result) -> {
             try {
-                T preVal = response.get();
+                T preVal = result.get();
                 try {
                     U postVal = transformFunction.apply(preVal);
                     future.setVal(postVal);
