@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
+import org.stevedowning.remo.Result;
+
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isDone, isCancelled, isError;
@@ -58,16 +60,7 @@ public class BasicFuture<T> implements Future<T> {
     
     public BasicFuture<T> addCancellationAction(Runnable action) {
         if (action == null) return this;
-        if (isCancelled) {
-            action.run();
-        } else {
-            if (!isDone) this.cancellationActions.offer(action);
-            // Clear this action out if we've hit the race condition that leaves it in
-            // the queue after we think we're done pumping everything out.
-            if (isDone && cancellationActions.remove(action)) {
-                if (isCancelled) action.run();
-            }
-        }
+        addCallback((Result<T> result) -> { if (isCancelled) action.run(); });
         return this;
     }
 
