@@ -102,36 +102,34 @@ public class DefaultServiceRunner implements ServiceRunner {
     
     private void handleIncomingRequestBatch(final ServiceInterface service,
             final Socket clientSocket) {
-        executorService.submit(new Runnable() {
-            public void run() {
-                BufferedReader in = null;
-                PrintWriter out = null;
+        executorService.submit(() -> {
+            BufferedReader in = null;
+            PrintWriter out = null;
+            try {
+                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                RequestBatch requestBatch =
+                        serializationManager.deserialize(clientSocket.getInputStream());
+                ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
+                // TODO: Delegate these requests to different threads.
+                for (Request request : requestBatch) {
+                    handleRequest(service, responseBatch, request);
+                }
+                // TODO: Serialize the individual responses out as they become available
+                //       instead of sending the batch all at once.
+                serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
+            } catch (Exception e) {
+                logError("Error handling response", e);
+            } finally {
+                if (out != null) out.close();
                 try {
-                    in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    RequestBatch requestBatch =
-                            serializationManager.deserialize(clientSocket.getInputStream());
-                    ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
-                    // TODO: Delegate these requests to different threads.
-                    for (Request request : requestBatch.getRequests()) {
-                        handleRequest(service, responseBatch, request);
-                    }
-                    // TODO: Serialize the individual responses out as they become available
-                    //       instead of sending the batch all at once.
-                    serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
-                } catch (Exception e) {
-                    logError("Error handling response", e);
-                } finally {
-                    if (out != null) out.close();
-                    try {
-                        if (in != null) in.close();
-                    } catch (IOException e) {
-                        logError("Error closing stream", e);
-                    }
-                    try {
-                        clientSocket.close();
-                    } catch (IOException e) {
-                        logError("Error closing socket", e);
-                    }
+                    if (in != null) in.close();
+                } catch (IOException e) {
+                    logError("Error closing stream", e);
+                }
+                try {
+                    clientSocket.close();
+                } catch (IOException e) {
+                    logError("Error closing socket", e);
                 }
             }
         });
