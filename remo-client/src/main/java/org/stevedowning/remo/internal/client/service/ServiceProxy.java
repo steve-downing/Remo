@@ -38,6 +38,7 @@ public class ServiceProxy implements InvocationHandler {
         RequestHandler requestHandler = (Request request) -> {
             RequestBatch requestBatch =
                     new RequestBatch(idFactory.generateId());
+            requestBatch.add(request);
             return conn.send(requestBatch).transform((ResponseBatch responseBatch) -> {
                 String resultStr = responseBatch.get(request.getId()).getSerializedResult();
                 return serializationManager.deserialize(resultStr);
