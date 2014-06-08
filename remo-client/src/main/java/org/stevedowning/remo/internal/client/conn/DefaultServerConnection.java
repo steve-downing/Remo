@@ -40,33 +40,29 @@ public class DefaultServerConnection implements ServerConnection {
         try {
             final Socket socket = new Socket(hostname, port);
             
-            future.addCancellationAction(new Runnable() {
-                public void run() {
-                    // Closing the socket will cause any pending serializations to throw an error.
+            future.addCancellationAction(() -> {
+                // Closing the socket will cause any pending serializations to throw an error.
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    // Nothing to do here.
+                }
+            });
+            executorService.submit(() -> {
+                try {
+                    serializationManager.serialize(socket.getOutputStream(), requestBatch);
+                    ResponseBatch responseBatch =
+                            serializationManager.deserialize(socket.getInputStream());
+                    future.setVal(responseBatch);
+                } catch (IOException e) {
+                    future.setException(e);
+                } catch (ClassNotFoundException e) {
+                    future.setException(new ExecutionException(e));
+                } finally {
                     try {
                         socket.close();
                     } catch (IOException e) {
                         // Nothing to do here.
-                    }
-                }
-            });
-            executorService.submit(new Runnable() {
-                public void run() {
-                    try {
-                        serializationManager.serialize(socket.getOutputStream(), requestBatch);
-                        ResponseBatch responseBatch =
-                                serializationManager.deserialize(socket.getInputStream());
-                        future.setVal(responseBatch);
-                    } catch (IOException e) {
-                        future.setException(e);
-                    } catch (ClassNotFoundException e) {
-                        future.setException(new ExecutionException(e));
-                    } finally {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            // Nothing to do here.
-                        }
                     }
                 }
             });
