@@ -1,9 +1,6 @@
 package org.stevedowning.remo.server.runner;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
@@ -103,10 +100,7 @@ public class DefaultServiceRunner implements ServiceRunner {
     private void handleIncomingRequestBatch(final ServiceInterface service,
             final Socket clientSocket) {
         executorService.submit(() -> {
-            BufferedReader in = null;
-            PrintWriter out = null;
             try {
-                in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 RequestBatch requestBatch =
                         serializationManager.deserialize(clientSocket.getInputStream());
                 ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
@@ -120,12 +114,6 @@ public class DefaultServiceRunner implements ServiceRunner {
             } catch (Exception e) {
                 logError("Error handling response", e);
             } finally {
-                if (out != null) out.close();
-                try {
-                    if (in != null) in.close();
-                } catch (IOException e) {
-                    logError("Error closing stream", e);
-                }
                 try {
                     clientSocket.close();
                 } catch (IOException e) {
