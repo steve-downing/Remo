@@ -1,4 +1,4 @@
-package org.stevedowning.remo.server.example;
+package org.stevedowning.remo.example;
 
 import java.io.IOException;
 
