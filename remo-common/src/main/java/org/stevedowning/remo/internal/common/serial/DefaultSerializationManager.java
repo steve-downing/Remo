@@ -8,11 +8,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
+
 public class DefaultSerializationManager implements SerializationManager {
     @SuppressWarnings("unchecked")
     public <T> T deserialize(String str)
             throws IOException, ClassNotFoundException {
-        byte[] bytes = str.getBytes();
+        byte[] bytes;
+        try {
+            bytes = Base64.decode(str.getBytes());
+        } catch (Base64DecodingException e) {
+            throw new IOException("Unable to Base64-decode the byte array");
+        }
         ObjectInputStream oin = null;
         ByteArrayInputStream bain = null;
         try {
@@ -34,7 +42,7 @@ public class DefaultSerializationManager implements SerializationManager {
             oout = new ObjectOutputStream(baout);
             oout.writeObject(obj);
             byte[] bytes = baout.toByteArray();
-            String retVal = new String(bytes);
+            String retVal = new String(Base64.encode(bytes));
             return retVal;
         } finally {
             if (oout != null) oout.close();
