@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.commons.idyll.idfactory.LongIdFactory;
-import org.stevedowning.remo.server.runner.DefaultServiceRunner;
+import org.stevedowning.remo.DefaultServiceRunner;
 
 public class SimpleServer {
     public static void main(String[] args) throws IOException {

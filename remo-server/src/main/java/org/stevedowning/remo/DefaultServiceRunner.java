@@ -1,4 +1,4 @@
-package org.stevedowning.remo.server.runner;
+package org.stevedowning.remo;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,7 +12,7 @@ import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
-import org.stevedowning.remo.server.service.ServiceInterface;
+import org.stevedowning.remo.internal.server.service.ServiceInterface;
 
 public class DefaultServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();

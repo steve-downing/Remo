@@ -2,7 +2,7 @@ package org.stevedowning.remo.example;
 
 import java.io.IOException;
 
-import org.stevedowning.remo.server.runner.DefaultServiceRunner;
+import org.stevedowning.remo.DefaultServiceRunner;
 
 public class ExampleServer {
     private static class ExampleServiceImpl implements ExampleContract {

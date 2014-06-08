@@ -1,4 +1,4 @@
-package org.stevedowning.remo.server.service;
+package org.stevedowning.remo.internal.server.service;
 
 import java.lang.reflect.Method;
 
