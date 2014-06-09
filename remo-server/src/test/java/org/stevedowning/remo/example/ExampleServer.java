@@ -30,6 +30,6 @@ public class ExampleServer {
         int port = 12345;
         new DefaultServiceRunner().runService(
                 new ExampleServiceImpl(), ExampleContract.class, port);
-        System.out.println("Example service reporting for duty on port " + port + "!");
+        System.out.println("Example service reporting for duty on port " + port);
     }
 }
