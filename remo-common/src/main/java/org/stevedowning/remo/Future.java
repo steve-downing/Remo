@@ -22,7 +22,7 @@ public interface Future<T> extends Result<T> {
      * @param transformFunction The function used to transform this Future's result into another.
      * @return A new Future that promises the transformed result.
      */
-    default public <U> BasicFuture<U> transform(final ThrowingFunction<T, U> transformFunction) {
+    default public <U> Future<U> transform(final ThrowingFunction<T, U> transformFunction) {
         BasicFuture<U> future = new BasicFuture<U>();
         addCallback((Result<T> result) -> {
             if (isCancelled()) {
