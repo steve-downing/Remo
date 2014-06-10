@@ -13,7 +13,7 @@ public class TransformedFuture<T, U> implements Future<U> {
     private final Future<T> backingFuture;
     private final ThrowingFunction<T, U> transformFunction;
     private volatile Result<U> transformedResult = null;
-    private volatile boolean isError = false;
+    private volatile boolean isTransformationError = false;
 
     public TransformedFuture(Future<T> future, ThrowingFunction<T, U> transformFunction) {
         this.backingFuture = future;
@@ -28,7 +28,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         try {
             return transformFunction.apply(val);
         } catch (Exception ex) {
-            isError = true;
+            isTransformationError = true;
             throw new ExecutionException(ex);
         }
     }
@@ -71,7 +71,7 @@ public class TransformedFuture<T, U> implements Future<U> {
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
         if (isDone()) cacheTransformedResult();
-        return isError || backingFuture.isError();
+        return isTransformationError || backingFuture.isError();
     }
     public boolean isSuccess() { return backingFuture.isSuccess() && !isError(); }
 
