@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
-import org.stevedowning.remo.ThrowingFunction;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isDone, isCancelled, isError;
@@ -156,11 +155,5 @@ public class BasicFuture<T> implements Future<T> {
             // change it from non-null to null.
             executorService.submit(() -> callback.handleResult(this));
         }
-    }
-    
-    public <U> BasicFuture<U> transform(final ThrowingFunction<T, U> transformFunction) {
-        BasicFuture<U> transformedFuture = Future.super.transform(transformFunction);
-        transformedFuture.executorService = executorService;
-        return transformedFuture;
     }
 }
