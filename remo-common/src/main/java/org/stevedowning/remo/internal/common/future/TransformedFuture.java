@@ -38,12 +38,8 @@ public class TransformedFuture<T, U> implements Future<U> {
         BasicFuture<U> transformedResult = new BasicFuture<U>();
         try {
             T val = backingFuture.get();
-            try {
-                U transformedVal = transformVal(val);
-                transformedResult.setVal(transformedVal);
-            } catch (ExecutionException ex) {
-                transformedResult.setException(ex);
-            }
+            U transformedVal = transformVal(val);
+            transformedResult.setVal(transformedVal);
         } catch (ExecutionException ex) {
             transformedResult.setException(ex);
         } catch (InterruptedException ex) {
