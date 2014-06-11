@@ -11,11 +11,9 @@ import java.util.concurrent.TimeUnit;
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
-import org.stevedowning.remo.ThrowingFunction;
-
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isDone, isCancelled, isError;
+    private volatile boolean isError, isCancelled, isSuccess;
     private volatile InterruptedException interruptedException;
     private volatile ExecutionException executionException;
     private volatile IOException ioException;
@@ -25,10 +23,8 @@ public class BasicFuture<T> implements Future<T> {
 
     private final Queue<Callback<T>> callbacks;
 
-    // TODO: Allow the client to provide an optional executor service that runs callbacks.
-    //       Watch out for deadlock opportunities when this happens.
     public BasicFuture(ExecutorService executorService) {
-        isDone = false;
+        isSuccess = false;
         isCancelled = false;
         isError = false;
         interruptedException = null;
@@ -45,19 +41,19 @@ public class BasicFuture<T> implements Future<T> {
 
     public boolean cancel() {
         // Quick check to avoid a potentially blocking call.
-        if (isDone) return false;
+        if (isDone()) return false;
         return setCancelled();
     }
     
     public BasicFuture<T> addCallback(Callback<T> callback) {
         if (callback == null) return this;
-        if (isDone) {
+        if (isDone()) {
             invokeCallback(callback);
         } else {
             callbacks.offer(callback);
             // Clear this callback out if we've hit the race condition that leaves it in
             // the queue after we think we're done pumping everything out.
-            if (isDone && callbacks.remove(callback)) {
+            if (isDone() && callbacks.remove(callback)) {
                 invokeCallback(callback);
             }
         }
@@ -92,26 +88,27 @@ public class BasicFuture<T> implements Future<T> {
         }
     }
 
-    public boolean isDone() { return isDone; }
+    public boolean isDone() { return isSuccess || isCancelled || isError; }
     public boolean isError() { return isError; }
     public boolean isCancelled() { return isCancelled; }
-    public boolean isSuccess() { return isDone && !isError && !isCancelled; }
+    public boolean isSuccess() { return isSuccess; }
 
     public synchronized boolean setVal(T val) {
-        if (isDone) return false;
+        if (isDone()) return false;
         this.val = val;
+        isSuccess = true;
         harden();
         return true;
     }
     
     private synchronized boolean setCancelled() {
-        if (isDone) return false;
+        if (isDone()) return false;
         isCancelled = true;
         return setException(new InterruptedException());
     }
 
     public synchronized boolean setException(InterruptedException ex) {
-        if (isDone) return false;
+        if (isDone()) return false;
         interruptedException = ex;
         isError = !isCancelled; // Importantly, cancellation isn't an error state.
         harden();
@@ -119,7 +116,7 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public synchronized boolean setException(IOException ex) {
-        if (isDone) return false;
+        if (isDone()) return false;
         ioException = ex;
         isError = true;
         harden();
@@ -127,7 +124,7 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public synchronized boolean setException(ExecutionException ex) {
-        if (isDone) return false;
+        if (isDone()) return false;
         executionException = ex;
         isError = true;
         harden();
@@ -138,7 +135,6 @@ public class BasicFuture<T> implements Future<T> {
      * Lock down this future. It's already received its result. It's no longer mutable.
      */
     private synchronized void harden() {
-        isDone = true;
         doneLatch.countDown();
         invokeCallbacks();
     }
@@ -157,11 +153,5 @@ public class BasicFuture<T> implements Future<T> {
             // change it from non-null to null.
             executorService.submit(() -> callback.handleResult(this));
         }
-    }
-    
-    public <U> BasicFuture<U> transform(final ThrowingFunction<T, U> transformFunction) {
-        BasicFuture<U> transformedFuture = Future.super.transform(transformFunction);
-        transformedFuture.executorService = executorService;
-        return transformedFuture;
     }
 }

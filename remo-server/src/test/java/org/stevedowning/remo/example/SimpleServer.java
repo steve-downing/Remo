@@ -11,6 +11,6 @@ public class SimpleServer {
         int port = 12345;
         new DefaultServiceRunner().runService(
                 new LongIdFactory(), IdFactory.class, port);
-        System.out.println("IdFactory service reporting for duty on port " + port + "!");
+        System.out.println("IdFactory service reporting for duty on port " + port);
     }
 }

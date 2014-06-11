@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.stevedowning.remo.internal.common.future.BasicFuture;
+import org.stevedowning.remo.internal.common.future.TransformedFuture;
 
 public interface Future<T> extends Result<T> {
     public T get(long timeout, TimeUnit unit)
@@ -23,30 +23,6 @@ public interface Future<T> extends Result<T> {
      * @return A new Future that promises the transformed result.
      */
     default public <U> Future<U> transform(final ThrowingFunction<T, U> transformFunction) {
-        BasicFuture<U> future = new BasicFuture<U>();
-        addCallback((Result<T> result) -> {
-            if (isCancelled()) {
-                future.cancel();
-            } else {
-                try {
-                    T preVal = result.get();
-                    try {
-                        U postVal = transformFunction.apply(preVal);
-                        future.setVal(postVal);
-                    } catch (Exception ex) {
-                        // This should catch transformation errors.
-                        future.setException(new ExecutionException(ex));
-                    }
-                } catch (InterruptedException ex) {
-                    future.setException(ex);
-                } catch (ExecutionException ex) {
-                    future.setException(ex);
-                } catch (IOException ex) {
-                    future.setException(ex);
-                }
-            }
-        });
-        future.addCancellationAction(() -> cancel());
-        return future;
+        return new TransformedFuture<>(this, transformFunction);
     }
 }
