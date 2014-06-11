@@ -13,7 +13,7 @@ import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isDone, isCancelled, isSuccess;
+    private volatile boolean isError, isCancelled, isSuccess;
     private volatile InterruptedException interruptedException;
     private volatile ExecutionException executionException;
     private volatile IOException ioException;
