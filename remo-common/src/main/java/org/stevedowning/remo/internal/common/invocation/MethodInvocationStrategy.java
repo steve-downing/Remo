@@ -14,4 +14,6 @@ public interface MethodInvocationStrategy {
             SerializationManager serializationManager, ServiceContext serviceContext,
             Method method, Object[] args)
                     throws IOException, InterruptedException, ExecutionException;
+    public Object invokeServiceMethod(Method method, Object handler, Object[] args)
+            throws Exception;
 }
