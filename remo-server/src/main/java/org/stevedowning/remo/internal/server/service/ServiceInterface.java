@@ -12,18 +12,18 @@ import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 public class ServiceInterface {
     private final Object handler;
     private final IdMap<ServiceMethod> methodMap;
-    private final MethodInvocationStrategySelector invocationStrategySelector;
     
     public <T> ServiceInterface(Class<T> serviceContract, T handler) {
         this.handler = handler;
         this.methodMap = new HashIdMap<ServiceMethod>();
-        this.invocationStrategySelector = new MethodInvocationStrategySelector();
-        populateMethodMap(serviceContract);
+        populateMethodMap(serviceContract, new MethodInvocationStrategySelector());
     }
     
-    public void populateMethodMap(Class<?> interfaceType) {
+    public void populateMethodMap(Class<?> interfaceType,
+            MethodInvocationStrategySelector invocationStrategySelector) {
         for (Method method : interfaceType.getMethods()) {
-            methodMap.add(new ServiceMethod(method));
+            MethodInvocationStrategy strategy = invocationStrategySelector.getStrategy(method);
+            methodMap.add(new ServiceMethod(method, strategy));
         }
     }
     
@@ -32,8 +32,7 @@ public class ServiceInterface {
         if (serviceMethod == null) {
             throw new NoSuchMethodException();
         }
-        MethodInvocationStrategy strategy =
-                invocationStrategySelector.getStrategy(serviceMethod.getMethod());
+        MethodInvocationStrategy strategy = serviceMethod.getInvocationStrategy();
         return strategy.invokeServiceMethod(serviceMethod.getMethod(), handler, args);
     }
 }
