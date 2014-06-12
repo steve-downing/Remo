@@ -11,9 +11,17 @@ import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 
-public class DefaultRemoClientFactory implements RemoClientFactory {
+public class RemoteClientFactory implements ClientFactory {
+    private final String hostname;
+    private final int port;
+    
+    public RemoteClientFactory(String hostname, int port) {
+        this.hostname = hostname;
+        this.port = port;
+    }
+    
     @SuppressWarnings("unchecked") // The cast should work just fine.
-    public <T> T getRemoteService(Class<T> serviceType, String hostname, int port)
+    public <T> T getRemoteService(Class<T> serviceType)
             throws IOException {
         Class<?>[] serviceTypes = new Class<?>[] { serviceType };
         ServerConnection conn = new DefaultServerConnection(hostname, port);
@@ -29,5 +37,4 @@ public class DefaultRemoClientFactory implements RemoClientFactory {
         // TODO Auto-generated method stub
         return null;
     }
-
 }
