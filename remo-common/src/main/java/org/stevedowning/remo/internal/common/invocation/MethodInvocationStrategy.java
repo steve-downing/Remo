@@ -16,4 +16,6 @@ public interface MethodInvocationStrategy {
                     throws IOException, InterruptedException, ExecutionException;
     public Object invokeServiceMethod(Method method, Object handler, Object[] args)
             throws Exception;
+    // Indicates whether getVal() can block on remote execution. This is important for batching correctly.
+    // TODO: public boolean isBlockingCall();
 }
