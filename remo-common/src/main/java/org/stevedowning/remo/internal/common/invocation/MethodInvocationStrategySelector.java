@@ -1,4 +1,4 @@
-package org.stevedowning.remo.internal.client.invocation;
+package org.stevedowning.remo.internal.common.invocation;
 
 import java.lang.reflect.Method;
 

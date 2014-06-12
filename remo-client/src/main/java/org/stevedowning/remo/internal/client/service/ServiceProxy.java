@@ -6,13 +6,14 @@ import java.lang.reflect.Method;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.commons.idyll.idfactory.LongIdFactory;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
-import org.stevedowning.remo.internal.client.invocation.MethodInvocationStrategy;
-import org.stevedowning.remo.internal.client.invocation.MethodInvocationStrategySelector;
-import org.stevedowning.remo.internal.client.invocation.RequestHandler;
+import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
+import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategySelector;
+import org.stevedowning.remo.internal.common.invocation.RequestHandler;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.service.ServiceContext;
 
 public class ServiceProxy implements InvocationHandler {
     private final ServerConnection conn;

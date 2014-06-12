@@ -1,4 +1,4 @@
-package org.stevedowning.remo.internal.client.service;
+package org.stevedowning.remo.internal.common.service;
 
 public class ServiceContext {
     private final ServiceContext parentContext;

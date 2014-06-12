@@ -6,10 +6,10 @@ import java.lang.reflect.Proxy;
 
 import org.stevedowning.remo.internal.client.conn.DefaultServerConnection;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
-import org.stevedowning.remo.internal.client.service.ServiceContext;
 import org.stevedowning.remo.internal.client.service.ServiceProxy;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.service.ServiceContext;
 
 public class DefaultRemoClientFactory implements RemoClientFactory {
     @SuppressWarnings("unchecked") // The cast should work just fine.
