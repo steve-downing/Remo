@@ -45,6 +45,7 @@ public class ServiceProxy implements InvocationHandler {
                 return serializationManager.deserialize(resultStr);
             });
         };
+        // TODO: This is an unweildy number of args. Find a way to inject some of them instead.
         return strategy.getVal(idFactory, requestHandler, serializationManager, serviceContext,
                 method, args);
     }
