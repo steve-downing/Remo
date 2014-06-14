@@ -32,8 +32,7 @@ public class RemoteServiceClientFactory implements ClientFactory {
                 Thread.currentThread().getContextClassLoader(), serviceTypes, serviceProxy);
     }
 
-    public <T> ServiceHook<T> createRemoteServiceHook(Class<T> serviceType, String hostname,
-            int port) {
+    public <T> ServiceHook<T> createRemoteServiceHook(Class<T> serviceType) {
         // TODO Auto-generated method stub
         return null;
     }
