@@ -11,11 +11,11 @@ import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 
-public class RemoteClientFactory implements ClientFactory {
+public class RemoteServiceClientFactory implements ClientFactory {
     private final String hostname;
     private final int port;
     
-    public RemoteClientFactory(String hostname, int port) {
+    public RemoteServiceClientFactory(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
     }
