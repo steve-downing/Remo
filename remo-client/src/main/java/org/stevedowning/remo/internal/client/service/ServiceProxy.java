@@ -9,9 +9,6 @@ import org.stevedowning.remo.internal.client.conn.ServerConnection;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategySelector;
 import org.stevedowning.remo.internal.common.invocation.RequestHandler;
-import org.stevedowning.remo.internal.common.request.Request;
-import org.stevedowning.remo.internal.common.request.RequestBatch;
-import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 
@@ -34,15 +31,9 @@ public class ServiceProxy implements InvocationHandler {
         MethodInvocationStrategy strategy =
                 new MethodInvocationStrategySelector().getStrategy(method);
         if (args == null) args = new Object[] {};
-        RequestHandler requestHandler = (Request request) -> {
-            // TODO: Be smarter about batching instead of sending one batch per request.
-            RequestBatch requestBatch = new RequestBatch(idFactory.generateId());
-            requestBatch.add(request);
-            return conn.send(requestBatch).transform((ResponseBatch responseBatch) -> {
-                String resultStr = responseBatch.get(request.getId()).getSerializedResult();
-                return serializationManager.deserialize(resultStr);
-            });
-        };
+        // TODO: Be smarter about batching instead of sending one batch per request.
+        RequestHandler requestHandler =
+                new SimpleRequestHandler(idFactory, serializationManager, conn);
         // TODO: This is an unweildy number of args. Find a way to inject some of them instead.
         return strategy.getVal(idFactory, requestHandler, serializationManager, serviceContext,
                 method, args);
