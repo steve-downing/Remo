@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 
 public class MethodInvocationStrategySelector {
     private final MethodInvocationStrategy[] strategies = {
+            new CallbackMethodInvocationStrategy(),
             new SimpleMethodInvocationStrategy()
     };
 
