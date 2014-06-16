@@ -35,6 +35,8 @@ public class BasicFuture<T> implements Future<T> {
         this.executorService = executorService;
     }
     
+    // TODO: Make a ctor that takes a function that returns a value and handles exceptions.
+    
     public BasicFuture() {
         this(null);
     }

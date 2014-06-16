@@ -38,12 +38,8 @@ public class TransformedFuture<T, U> implements Future<U> {
         BasicFuture<U> transformedResult = new BasicFuture<U>();
         try {
             T val = backingFuture.get();
-            try {
-                U transformedVal = transformVal(val);
-                transformedResult.setVal(transformedVal);
-            } catch (ExecutionException ex) {
-                transformedResult.setException(ex);
-            }
+            U transformedVal = transformVal(val);
+            transformedResult.setVal(transformedVal);
         } catch (ExecutionException ex) {
             transformedResult.setException(ex);
         } catch (InterruptedException ex) {
@@ -70,10 +66,15 @@ public class TransformedFuture<T, U> implements Future<U> {
     public boolean isDone() { return backingFuture.isDone(); }
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
-        if (isDone()) cacheTransformedResult();
-        return isTransformationError || backingFuture.isError();
+        return isTransformationError() || backingFuture.isError();
     }
-    public boolean isSuccess() { return backingFuture.isSuccess() && !isError(); }
+    public boolean isSuccess() {
+        return backingFuture.isSuccess() && !isTransformationError();
+    }
+    private boolean isTransformationError() {
+        if (isDone()) cacheTransformedResult();
+        return isTransformationError;
+    }
 
     public Future<U> addCallback(Callback<U> callback) {
         backingFuture.addCallback((Result<T> result) -> {

@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.datastructures.HashIdMap;
 import org.stevedowning.commons.idyll.datastructures.IdMap;
+import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
+import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategySelector;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
 import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
@@ -14,12 +16,14 @@ public class ServiceInterface {
     public <T> ServiceInterface(Class<T> serviceContract, T handler) {
         this.handler = handler;
         this.methodMap = new HashIdMap<ServiceMethod>();
-        populateMethodMap(serviceContract);
+        populateMethodMap(serviceContract, new MethodInvocationStrategySelector());
     }
     
-    public void populateMethodMap(Class<?> interfaceType) {
+    public void populateMethodMap(Class<?> interfaceType,
+            MethodInvocationStrategySelector invocationStrategySelector) {
         for (Method method : interfaceType.getMethods()) {
-            methodMap.add(new ServiceMethod(method));
+            MethodInvocationStrategy strategy = invocationStrategySelector.getStrategy(method);
+            methodMap.add(new ServiceMethod(method, strategy));
         }
     }
     
@@ -28,6 +32,7 @@ public class ServiceInterface {
         if (serviceMethod == null) {
             throw new NoSuchMethodException();
         }
-        return serviceMethod.getMethod().invoke(handler, args);
+        MethodInvocationStrategy strategy = serviceMethod.getInvocationStrategy();
+        return strategy.invokeServiceMethod(serviceMethod.getMethod(), handler, args);
     }
 }

@@ -6,14 +6,22 @@ import java.lang.reflect.Proxy;
 
 import org.stevedowning.remo.internal.client.conn.DefaultServerConnection;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
-import org.stevedowning.remo.internal.client.service.ServiceContext;
 import org.stevedowning.remo.internal.client.service.ServiceProxy;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.service.ServiceContext;
 
-public class DefaultRemoClientFactory implements RemoClientFactory {
+public class RemoteServiceClientFactory implements ClientFactory {
+    private final String hostname;
+    private final int port;
+    
+    public RemoteServiceClientFactory(String hostname, int port) {
+        this.hostname = hostname;
+        this.port = port;
+    }
+    
     @SuppressWarnings("unchecked") // The cast should work just fine.
-    public <T> T getRemoteService(Class<T> serviceType, String hostname, int port)
+    public <T> T getRemoteService(Class<T> serviceType)
             throws IOException {
         Class<?>[] serviceTypes = new Class<?>[] { serviceType };
         ServerConnection conn = new DefaultServerConnection(hostname, port);
@@ -24,10 +32,8 @@ public class DefaultRemoClientFactory implements RemoClientFactory {
                 Thread.currentThread().getContextClassLoader(), serviceTypes, serviceProxy);
     }
 
-    public <T> ServiceHook<T> createRemoteServiceHook(Class<T> serviceType, String hostname,
-            int port) {
+    public <T> ServiceHook<T> createRemoteServiceHook(Class<T> serviceType) {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

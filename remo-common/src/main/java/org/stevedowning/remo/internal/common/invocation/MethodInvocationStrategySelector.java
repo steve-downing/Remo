@@ -1,9 +1,10 @@
-package org.stevedowning.remo.internal.client.invocation;
+package org.stevedowning.remo.internal.common.invocation;
 
 import java.lang.reflect.Method;
 
 public class MethodInvocationStrategySelector {
     private final MethodInvocationStrategy[] strategies = {
+            new RemoFutureMethodInvocationStrategy(),
             new SimpleMethodInvocationStrategy()
     };
 
