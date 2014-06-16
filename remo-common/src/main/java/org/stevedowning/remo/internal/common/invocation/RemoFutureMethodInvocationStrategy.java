@@ -12,7 +12,7 @@ import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
-public class CallbackMethodInvocationStrategy implements MethodInvocationStrategy {
+public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
         return method.getReturnType().equals(Future.class);
     }
