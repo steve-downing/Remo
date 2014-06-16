@@ -33,9 +33,7 @@ public class ServiceProxy implements InvocationHandler {
             throws Throwable {
         MethodInvocationStrategy strategy =
                 new MethodInvocationStrategySelector().getStrategy(method);
-        if (args == null) {
-            args = new Object[] {};
-        }
+        if (args == null) args = new Object[] {};
         RequestHandler requestHandler = (Request request) -> {
             // TODO: Be smarter about batching instead of sending one batch per request.
             RequestBatch requestBatch = new RequestBatch(idFactory.generateId());
