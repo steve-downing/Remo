@@ -21,6 +21,7 @@ public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrat
             throws IOException, InterruptedException, ExecutionException {
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
+        // TODO: Cancel the request on the server if the Future gets a cancel() request.
         return requestHandler.submitRequest(request);
     }
 
