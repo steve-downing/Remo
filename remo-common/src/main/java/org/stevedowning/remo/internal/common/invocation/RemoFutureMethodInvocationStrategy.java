@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
-import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
 public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
@@ -21,13 +19,8 @@ public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrat
             SerializationManager serializationManager,
             ServiceContext serviceContext, Method method, Object[] args)
             throws IOException, InterruptedException, ExecutionException {
-        Id<Request> requestId = idFactory.generateId();
-        String[] serializedArgs = new String[args.length];
-        for (int i = 0; i < args.length; ++i) {
-            serializedArgs[i] = serializationManager.serialize(args[i]);
-        }
-        Request request =
-                new Request(requestId, new ServiceMethodId(method), serializedArgs);
+        Request request = createRequest(
+                idFactory, serializationManager, serviceContext, method, args);
         return requestHandler.submitRequest(request);
     }
 
