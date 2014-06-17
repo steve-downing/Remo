@@ -21,7 +21,7 @@ public class RemoteServiceClientFactory implements ClientFactory {
     }
     
     @SuppressWarnings("unchecked") // The cast should work just fine.
-    public <T> T getRemoteService(Class<T> serviceType)
+    public <T> T getService(Class<T> serviceType)
             throws IOException {
         Class<?>[] serviceTypes = new Class<?>[] { serviceType };
         ServerConnection conn = new DefaultServerConnection(hostname, port);
@@ -32,7 +32,7 @@ public class RemoteServiceClientFactory implements ClientFactory {
                 Thread.currentThread().getContextClassLoader(), serviceTypes, serviceProxy);
     }
 
-    public <T> ServiceHook<T> createRemoteServiceHook(Class<T> serviceType) {
+    public <T> ServiceHook<T> createServiceHook(Class<T> serviceType) {
         // TODO Auto-generated method stub
         return null;
     }
