@@ -19,7 +19,12 @@ public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy 
                     throws IOException, InterruptedException, ExecutionException {
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
-        return requestHandler.submitRequest(request).get();
+        try {
+            return serializationManager.deserialize(
+                    requestHandler.submitRequest(request).get().getSerializedResult());
+        } catch (ClassNotFoundException ex) {
+            throw new ExecutionException(ex);
+        }
     }
 
     public Object invokeServiceMethod(Method method, Object handler, Object[] args)
