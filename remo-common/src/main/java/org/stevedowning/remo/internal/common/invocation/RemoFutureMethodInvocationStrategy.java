@@ -7,6 +7,7 @@ import java.util.concurrent.ExecutionException;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 
@@ -22,7 +23,9 @@ public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrat
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
         // TODO: Cancel the request on the server if the Future gets a cancel() request.
-        return requestHandler.submitRequest(request);
+        return requestHandler.submitRequest(request).transform((Response result) -> {
+            return serializationManager.deserialize(result.getSerializedResult());
+        });
     }
 
     @Override
