@@ -35,6 +35,7 @@ public class TransformedFuture<T, U> implements Future<U> {
     
     private synchronized void cacheTransformedResult() {
         if (transformedResult != null) return;
+        // TODO: Use a PresetFuture.
         BasicFuture<U> transformedResult = new BasicFuture<U>();
         try {
             T val = backingFuture.get();
@@ -63,6 +64,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         return transformedResult.get();
     }
 
+    // TODO: This should only be done after the transformation has succeeded.
     public boolean isDone() { return backingFuture.isDone(); }
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
