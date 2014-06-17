@@ -67,6 +67,11 @@ public class BasicFuture<T> implements Future<T> {
         addCallback((Result<T> result) -> { if (isCancelled) action.run(); });
         return this;
     }
+    
+    // TODO: public BasicFuture<T> addBlockingGetAction(Runnable action)
+    // This will run an action at any time that a get() is called while !isDone.
+    // Effectively, this allows other objects to be notified when a thread is
+    // blocking on this result.
 
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, IOException {
