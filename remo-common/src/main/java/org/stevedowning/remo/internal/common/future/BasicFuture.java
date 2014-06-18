@@ -19,7 +19,7 @@ public class BasicFuture<T> implements Future<T> {
     private volatile IOException ioException;
     private volatile T val;
     private final CountDownLatch doneLatch;
-    private volatile ExecutorService executorService;
+    private final ExecutorService executorService;
 
     private final Queue<Callback<T>> callbacks;
 
