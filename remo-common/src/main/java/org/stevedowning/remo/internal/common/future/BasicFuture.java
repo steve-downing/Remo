@@ -117,6 +117,8 @@ public class BasicFuture<T> implements Future<T> {
      * Lock down this future. It's already received its result. It's no longer mutable.
      */
     private synchronized void harden() {
+        // TODO: There isn't any reason for this to be synchronized anymore. Don't call
+        //       it from a syncronized method.
         doneLatch.countDown();
         invokeCallbacks();
     }
