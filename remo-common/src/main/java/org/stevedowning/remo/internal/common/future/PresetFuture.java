@@ -50,7 +50,7 @@ public class PresetFuture<T> implements Future<T> {
         return get();
     }
 
-    public Future<T> addCallback(Callback<T> callback) {
+    public PresetFuture<T> addCallback(Callback<T> callback) {
         if (executorService == null) {
             callback.handleResult(this);
         } else {
@@ -58,7 +58,7 @@ public class PresetFuture<T> implements Future<T> {
         }
         return this;
     }
-    public Future<T> addCancellationAction(Runnable action) { return this; }
+    public PresetFuture<T> addCancellationAction(Runnable action) { return this; }
 
     public boolean isSuccess() { return !isError(); }
     public boolean isError() { return error.hasError(); }
