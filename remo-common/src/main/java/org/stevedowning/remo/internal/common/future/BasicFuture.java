@@ -35,8 +35,6 @@ public class BasicFuture<T> implements Future<T> {
         this.executorService = executorService;
     }
     
-    // TODO: Make a ctor that takes a function that returns a value and handles exceptions.
-    
     public BasicFuture() {
         this(null);
     }
@@ -156,8 +154,6 @@ public class BasicFuture<T> implements Future<T> {
         if (executorService == null) {
             callback.handleResult(this);
         } else {
-            // This is safe because, even though our ExecutorService is volatile, nothing can
-            // change it from non-null to null.
             executorService.submit(() -> callback.handleResult(this));
         }
     }
