@@ -35,19 +35,11 @@ public class TransformedFuture<T, U> implements Future<U> {
     
     private synchronized void cacheTransformedResult() {
         if (transformedResult != null) return;
-        // TODO: Use a PresetFuture.
-        BasicFuture<U> transformedResult = new BasicFuture<U>();
-        try {
+        Future<U> transformedResult = new PresetFuture<U>(() -> {
             T val = backingFuture.get();
             U transformedVal = transformVal(val);
-            transformedResult.setVal(transformedVal);
-        } catch (ExecutionException ex) {
-            transformedResult.setException(ex);
-        } catch (InterruptedException ex) {
-            transformedResult.setException(ex);
-        } catch (IOException ex) {
-            transformedResult.setException(ex);
-        }
+            return transformedVal;
+        });
         this.transformedResult = transformedResult;
     }
 
