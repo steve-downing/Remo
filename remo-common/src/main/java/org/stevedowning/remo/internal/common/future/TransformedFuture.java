@@ -65,7 +65,7 @@ public class TransformedFuture<T, U> implements Future<U> {
     }
 
     public boolean isDone() {
-        return isSuccess() || isError() || isCancelled();
+        return backingFuture.isDone() && transformedResult != null;
     }
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
