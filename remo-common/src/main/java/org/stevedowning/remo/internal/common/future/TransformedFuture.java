@@ -35,12 +35,11 @@ public class TransformedFuture<T, U> implements Future<U> {
     
     private synchronized void cacheTransformedResult() {
         if (transformedResult != null) return;
-        Future<U> transformedResult = new PresetFuture<U>(() -> {
+        this.transformedResult = new PresetFuture<U>(() -> {
             T val = backingFuture.get();
             U transformedVal = transformVal(val);
             return transformedVal;
         });
-        this.transformedResult = transformedResult;
     }
 
     public U get() throws InterruptedException, ExecutionException, IOException {
