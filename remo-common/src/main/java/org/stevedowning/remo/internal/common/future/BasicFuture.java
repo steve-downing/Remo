@@ -35,12 +35,6 @@ public class BasicFuture<T> implements Future<T> {
     public BasicFuture() {
         this(null);
     }
-
-    public boolean cancel() {
-        // Quick check to avoid a potentially blocking call.
-        if (isDone()) return false;
-        return setCancelled();
-    }
     
     public BasicFuture<T> addCallback(Callback<T> callback) {
         if (callback == null) return this;
@@ -94,6 +88,12 @@ public class BasicFuture<T> implements Future<T> {
         isSuccess = true;
         harden();
         return true;
+    }
+
+    public boolean cancel() {
+        // Quick check to avoid a potentially blocking call.
+        if (isDone()) return false;
+        return setCancelled();
     }
     
     private synchronized boolean setCancelled() {
