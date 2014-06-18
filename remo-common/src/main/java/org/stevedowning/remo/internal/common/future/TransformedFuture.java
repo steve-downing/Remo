@@ -64,17 +64,17 @@ public class TransformedFuture<T, U> implements Future<U> {
         return transformedResult.get();
     }
 
-    // TODO: This should only be done after the transformation has succeeded.
-    public boolean isDone() { return backingFuture.isDone(); }
+    public boolean isDone() {
+        return isSuccess() || isError() || isCancelled();
+    }
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
         return isTransformationError() || backingFuture.isError();
     }
     public boolean isSuccess() {
-        return backingFuture.isSuccess() && !isTransformationError();
+        return backingFuture.isSuccess() && transformedResult != null && !isTransformationError();
     }
     private boolean isTransformationError() {
-        if (isDone()) cacheTransformedResult();
         return isTransformationError;
     }
 
