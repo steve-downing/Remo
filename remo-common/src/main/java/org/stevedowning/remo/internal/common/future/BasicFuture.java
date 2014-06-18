@@ -96,6 +96,8 @@ public class BasicFuture<T> implements Future<T> {
         return true;
     }
     
+    // TODO: Use a non-synchronized wrapper method. We don't want to block on waiting for an
+    // already-done Future's callbacks. Same for setException and setVal().
     private synchronized boolean setCancelled() {
         if (isDone()) return false;
         isCancelled = true;
