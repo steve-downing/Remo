@@ -14,9 +14,7 @@ import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isError, isCancelled, isSuccess;
-    private volatile InterruptedException interruptedException;
-    private volatile ExecutionException executionException;
-    private volatile IOException ioException;
+    private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
     private final ExecutorService executorService;
@@ -27,8 +25,7 @@ public class BasicFuture<T> implements Future<T> {
         isSuccess = false;
         isCancelled = false;
         isError = false;
-        interruptedException = null;
-        executionException = null;
+        error = new ErrorContainer();
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
@@ -82,15 +79,8 @@ public class BasicFuture<T> implements Future<T> {
 
     public T get() throws InterruptedException, ExecutionException, IOException {
         doneLatch.await();
-        if (executionException != null) {
-            throw executionException;
-        } else if (interruptedException != null) {
-            throw interruptedException;
-        } else if (ioException != null) {
-            throw ioException;
-        } else {
-            return val;
-        }
+        error.possiblyThrow();
+        return val;
     }
 
     public boolean isDone() { return isSuccess || isCancelled || isError; }
@@ -109,31 +99,16 @@ public class BasicFuture<T> implements Future<T> {
     private synchronized boolean setCancelled() {
         if (isDone()) return false;
         isCancelled = true;
-        return setException(new InterruptedException());
+        setException(new InterruptedException());
+        return true;
     }
 
-    public synchronized boolean setException(InterruptedException ex) {
+    public synchronized boolean setException(Exception ex) {
         if (isDone()) return false;
-        interruptedException = ex;
+        error.setError(ex);
         isError = !isCancelled; // Importantly, cancellation isn't an error state.
         harden();
-        return true;
-    }
-
-    public synchronized boolean setException(IOException ex) {
-        if (isDone()) return false;
-        ioException = ex;
-        isError = true;
-        harden();
-        return true;
-    }
-
-    public synchronized boolean setException(ExecutionException ex) {
-        if (isDone()) return false;
-        executionException = ex;
-        isError = true;
-        harden();
-        return true;
+        return isError;
     }
     
     /**
