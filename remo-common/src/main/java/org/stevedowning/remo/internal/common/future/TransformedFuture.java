@@ -35,19 +35,11 @@ public class TransformedFuture<T, U> implements Future<U> {
     
     private synchronized void cacheTransformedResult() {
         if (transformedResult != null) return;
-        BasicFuture<U> transformedResult = new BasicFuture<U>();
-        try {
+        this.transformedResult = new PresetFuture<U>(() -> {
             T val = backingFuture.get();
             U transformedVal = transformVal(val);
-            transformedResult.setVal(transformedVal);
-        } catch (ExecutionException ex) {
-            transformedResult.setException(ex);
-        } catch (InterruptedException ex) {
-            transformedResult.setException(ex);
-        } catch (IOException ex) {
-            transformedResult.setException(ex);
-        }
-        this.transformedResult = transformedResult;
+            return transformedVal;
+        });
     }
 
     public U get() throws InterruptedException, ExecutionException, IOException {
@@ -63,16 +55,17 @@ public class TransformedFuture<T, U> implements Future<U> {
         return transformedResult.get();
     }
 
-    public boolean isDone() { return backingFuture.isDone(); }
+    public boolean isDone() {
+        return backingFuture.isDone() && transformedResult != null;
+    }
     public boolean isCancelled() { return backingFuture.isCancelled(); }
     public boolean isError() {
         return isTransformationError() || backingFuture.isError();
     }
     public boolean isSuccess() {
-        return backingFuture.isSuccess() && !isTransformationError();
+        return backingFuture.isSuccess() && transformedResult != null && !isTransformationError();
     }
     private boolean isTransformationError() {
-        if (isDone()) cacheTransformedResult();
         return isTransformationError;
     }
 

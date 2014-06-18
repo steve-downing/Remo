@@ -14,12 +14,10 @@ import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isError, isCancelled, isSuccess;
-    private volatile InterruptedException interruptedException;
-    private volatile ExecutionException executionException;
-    private volatile IOException ioException;
+    private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
-    private volatile ExecutorService executorService;
+    private final ExecutorService executorService;
 
     private final Queue<Callback<T>> callbacks;
 
@@ -27,15 +25,12 @@ public class BasicFuture<T> implements Future<T> {
         isSuccess = false;
         isCancelled = false;
         isError = false;
-        interruptedException = null;
-        executionException = null;
+        error = new ErrorContainer();
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
         this.executorService = executorService;
     }
-    
-    // TODO: Make a ctor that takes a function that returns a value and handles exceptions.
     
     public BasicFuture() {
         this(null);
@@ -67,6 +62,11 @@ public class BasicFuture<T> implements Future<T> {
         addCallback((Result<T> result) -> { if (isCancelled) action.run(); });
         return this;
     }
+    
+    // TODO: public BasicFuture<T> addBlockingGetAction(Runnable action)
+    // This will run an action at any time that a get() is called while !isDone.
+    // Effectively, this allows other objects to be notified when a thread is
+    // blocking on this result.
 
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, IOException {
@@ -79,15 +79,8 @@ public class BasicFuture<T> implements Future<T> {
 
     public T get() throws InterruptedException, ExecutionException, IOException {
         doneLatch.await();
-        if (executionException != null) {
-            throw executionException;
-        } else if (interruptedException != null) {
-            throw interruptedException;
-        } else if (ioException != null) {
-            throw ioException;
-        } else {
-            return val;
-        }
+        error.possiblyThrow();
+        return val;
     }
 
     public boolean isDone() { return isSuccess || isCancelled || isError; }
@@ -106,31 +99,16 @@ public class BasicFuture<T> implements Future<T> {
     private synchronized boolean setCancelled() {
         if (isDone()) return false;
         isCancelled = true;
-        return setException(new InterruptedException());
+        setException(new InterruptedException());
+        return true;
     }
 
-    public synchronized boolean setException(InterruptedException ex) {
+    public synchronized boolean setException(Exception ex) {
         if (isDone()) return false;
-        interruptedException = ex;
+        error.setError(ex);
         isError = !isCancelled; // Importantly, cancellation isn't an error state.
         harden();
-        return true;
-    }
-
-    public synchronized boolean setException(IOException ex) {
-        if (isDone()) return false;
-        ioException = ex;
-        isError = true;
-        harden();
-        return true;
-    }
-
-    public synchronized boolean setException(ExecutionException ex) {
-        if (isDone()) return false;
-        executionException = ex;
-        isError = true;
-        harden();
-        return true;
+        return isError;
     }
     
     /**
@@ -151,8 +129,6 @@ public class BasicFuture<T> implements Future<T> {
         if (executorService == null) {
             callback.handleResult(this);
         } else {
-            // This is safe because, even though our ExecutorService is volatile, nothing can
-            // change it from non-null to null.
             executorService.submit(() -> callback.handleResult(this));
         }
     }

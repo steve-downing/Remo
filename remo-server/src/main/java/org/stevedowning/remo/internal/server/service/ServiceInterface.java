@@ -21,8 +21,9 @@ public class ServiceInterface {
     
     public void populateMethodMap(Class<?> interfaceType,
             MethodInvocationStrategySelector invocationStrategySelector) {
+        // This goes through all public methods on the interface and precomputes which strategy
+        // to apply when the method is called.
         for (Method method : interfaceType.getMethods()) {
-            // TODO: Only allow public methods.
             MethodInvocationStrategy strategy = invocationStrategySelector.getStrategy(method);
             methodMap.add(new ServiceMethod(method, strategy));
         }
