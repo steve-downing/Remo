@@ -69,7 +69,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         return isTransformationError;
     }
 
-    public TransformedFuture<U> addCallback(Callback<U> callback) {
+    public TransformedFuture<T, U> addCallback(Callback<U> callback) {
         backingFuture.addCallback((Result<T> result) -> {
             cacheTransformedResult();
             callback.handleResult(transformedResult);
@@ -77,7 +77,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         return this;
     }
 
-    public TransformedFuture<U> addCancellationAction(Runnable action) {
+    public TransformedFuture<T, U> addCancellationAction(Runnable action) {
         backingFuture.addCancellationAction(action);
         return this;
     }
