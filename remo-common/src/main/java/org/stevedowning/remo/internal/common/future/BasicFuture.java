@@ -100,16 +100,17 @@ public class BasicFuture<T> implements Future<T> {
     private synchronized boolean setCancelled() {
         if (isDone()) return false;
         isCancelled = true;
-        setException(new InterruptedException());
+        error.setError(new InterruptedException());
+        harden();
         return true;
     }
 
     public synchronized boolean setException(Exception ex) {
         if (isDone()) return false;
         error.setError(ex);
-        isError = !isCancelled; // Importantly, cancellation isn't an error state.
+        isError = true;
         harden();
-        return isError;
+        return true;
     }
     
     /**
