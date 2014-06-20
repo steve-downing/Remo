@@ -85,30 +85,33 @@ public class BasicFuture<T> implements Future<T> {
 
     public synchronized boolean setVal(T val) {
         if (isDone()) return false;
-        this.val = val;
-        isSuccess = true;
+        synchronized (this) {
+            if (isDone()) return false;
+            this.val = val;
+            isSuccess = true;
+        }
         harden();
         return true;
     }
 
     public boolean cancel() {
-        // Quick check to avoid a potentially blocking call.
         if (isDone()) return false;
-        return setCancelled();
-    }
-    
-    private synchronized boolean setCancelled() {
-        if (isDone()) return false;
-        isCancelled = true;
-        error.setError(new InterruptedException());
+        synchronized (this) {
+            if (isDone()) return false;
+            error.setError(new InterruptedException());
+            isCancelled = true;
+        }
         harden();
         return true;
     }
 
     public synchronized boolean setException(Exception ex) {
         if (isDone()) return false;
-        error.setError(ex);
-        isError = true;
+        synchronized (this) {
+            if (isDone()) return false;
+            error.setError(ex);
+            isError = true;
+        }
         harden();
         return true;
     }
@@ -116,9 +119,7 @@ public class BasicFuture<T> implements Future<T> {
     /**
      * Lock down this future. It's already received its result. It's no longer mutable.
      */
-    private synchronized void harden() {
-        // TODO: There isn't any reason for this to be synchronized anymore. Don't call
-        //       it from a syncronized method.
+    private void harden() {
         doneLatch.countDown();
         invokeCallbacks();
     }
