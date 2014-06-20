@@ -1,11 +1,10 @@
 package org.stevedowning.remo.internal.common.future;
 
-import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.Callback;
@@ -13,33 +12,29 @@ import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isError, isCancelled, isSuccess;
+    private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning;
     private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
-    private final ExecutorService executorService;
+    private final Executor executor;
 
     private final Queue<Callback<T>> callbacks;
 
-    public BasicFuture(ExecutorService executorService) {
+    public BasicFuture(Executor executor) {
+        if (executor == null) throw new IllegalArgumentException();
         isSuccess = false;
         isCancelled = false;
         isError = false;
+        cancelMayInterruptIfRunning = false;
         error = new ErrorContainer();
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
-        this.executorService = executorService;
+        this.executor = executor;
     }
     
     public BasicFuture() {
-        this(null);
-    }
-
-    public boolean cancel() {
-        // Quick check to avoid a potentially blocking call.
-        if (isDone()) return false;
-        return setCancelled();
+        this(new SameThreadExecutor());
     }
     
     public BasicFuture<T> addCallback(Callback<T> callback) {
@@ -63,13 +58,24 @@ public class BasicFuture<T> implements Future<T> {
         return this;
     }
     
+    /**
+     * This function adds an action that may interrupt execution when this Future is cancelled.
+     * It'll only fire if this is cancelled with the mayInterruptIfRunning flag.
+     */
+    public BasicFuture<T> addCancellationInterrupt(Runnable action) {
+        if (action == null) return this;
+        addCallback((Result<T> result) -> {
+            if (isCancelled && cancelMayInterruptIfRunning) action.run();
+        });
+        return this;
+    }
+    
     // TODO: public BasicFuture<T> addBlockingGetAction(Runnable action)
     // This will run an action at any time that a get() is called while !isDone.
     // Effectively, this allows other objects to be notified when a thread is
     // blocking on this result.
 
-    public T get(long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, IOException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
         if (doneLatch.await(timeout, unit)) {
             return get();
         } else {
@@ -77,7 +83,7 @@ public class BasicFuture<T> implements Future<T> {
         }
     }
 
-    public T get() throws InterruptedException, ExecutionException, IOException {
+    public T get() throws InterruptedException, ExecutionException {
         doneLatch.await();
         error.possiblyThrow();
         return val;
@@ -88,33 +94,44 @@ public class BasicFuture<T> implements Future<T> {
     public boolean isCancelled() { return isCancelled; }
     public boolean isSuccess() { return isSuccess; }
 
-    public synchronized boolean setVal(T val) {
+    public boolean setVal(T val) {
         if (isDone()) return false;
-        this.val = val;
-        isSuccess = true;
+        synchronized (this) {
+            if (isDone()) return false;
+            this.val = val;
+            isSuccess = true;
+        }
         harden();
-        return true;
-    }
-    
-    private synchronized boolean setCancelled() {
-        if (isDone()) return false;
-        isCancelled = true;
-        setException(new InterruptedException());
         return true;
     }
 
-    public synchronized boolean setException(Exception ex) {
+    public boolean cancel(boolean mayInterruptIfRunning) {
         if (isDone()) return false;
-        error.setError(ex);
-        isError = !isCancelled; // Importantly, cancellation isn't an error state.
+        synchronized (this) {
+            if (isDone()) return false;
+            error.setError(new InterruptedException());
+            cancelMayInterruptIfRunning = mayInterruptIfRunning;
+            isCancelled = true;
+        }
         harden();
-        return isError;
+        return true;
+    }
+
+    public boolean setException(Exception ex) {
+        if (isDone()) return false;
+        synchronized (this) {
+            if (isDone()) return false;
+            error.setError(ex);
+            isError = true;
+        }
+        harden();
+        return true;
     }
     
     /**
      * Lock down this future. It's already received its result. It's no longer mutable.
      */
-    private synchronized void harden() {
+    private void harden() {
         doneLatch.countDown();
         invokeCallbacks();
     }
@@ -126,10 +143,6 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     private void invokeCallback(Callback<T> callback) {
-        if (executorService == null) {
-            callback.handleResult(this);
-        } else {
-            executorService.submit(() -> callback.handleResult(this));
-        }
+        executor.execute(() -> callback.handleResult(this));
     }
 }

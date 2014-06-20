@@ -1,6 +1,5 @@
 package org.stevedowning.remo.internal.common.future;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -42,14 +41,13 @@ public class TransformedFuture<T, U> implements Future<U> {
         });
     }
 
-    public U get() throws InterruptedException, ExecutionException, IOException {
+    public U get() throws InterruptedException, ExecutionException {
         backingFuture.get();
         cacheTransformedResult();
         return transformedResult.get();
     }
 
-    public U get(long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, IOException {
+    public U get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
         backingFuture.get(timeout, unit);
         cacheTransformedResult();
         return transformedResult.get();
@@ -69,7 +67,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         return isTransformationError;
     }
 
-    public Future<U> addCallback(Callback<U> callback) {
+    public TransformedFuture<T, U> addCallback(Callback<U> callback) {
         backingFuture.addCallback((Result<T> result) -> {
             cacheTransformedResult();
             callback.handleResult(transformedResult);
@@ -77,10 +75,12 @@ public class TransformedFuture<T, U> implements Future<U> {
         return this;
     }
 
-    public Future<U> addCancellationAction(Runnable action) {
+    public TransformedFuture<T, U> addCancellationAction(Runnable action) {
         backingFuture.addCancellationAction(action);
         return this;
     }
 
-    public boolean cancel() { return backingFuture.cancel(); }
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        return backingFuture.cancel(mayInterruptIfRunning);
+    }
 }
