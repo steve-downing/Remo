@@ -3,7 +3,7 @@ package org.stevedowning.remo;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.stevedowning.remo.internal.common.request.Request;
@@ -16,7 +16,7 @@ import org.stevedowning.remo.internal.server.service.ServiceInterface;
 
 public class DefaultServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final Executor executor = Executors.newCachedThreadPool();
     
     private class ServiceLoop implements Runnable, ServiceHandle {
         private volatile boolean shutdownRequested = false;
@@ -99,7 +99,7 @@ public class DefaultServiceRunner implements ServiceRunner {
     
     private void handleIncomingRequestBatch(final ServiceInterface service,
             final Socket clientSocket) {
-        executorService.submit(() -> {
+        executor.execute(() -> {
             try {
                 RequestBatch requestBatch =
                         serializationManager.deserialize(clientSocket.getInputStream());

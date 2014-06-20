@@ -3,6 +3,7 @@ package org.stevedowning.remo.internal.client.conn;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,7 +16,7 @@ import org.stevedowning.remo.internal.common.serial.SerializationManager;
 
 public class DefaultServerConnection implements ServerConnection {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
-    private final ExecutorService executorService;
+    private final Executor executor;
     private final String hostname;
     private final int port;
 
@@ -27,9 +28,9 @@ public class DefaultServerConnection implements ServerConnection {
         this(hostname, port, getDefaultExecutorService());
     }
 
-    public DefaultServerConnection(String hostname, int port,
-            ExecutorService executorService) throws IOException {
-        this.executorService = executorService;
+    public DefaultServerConnection(String hostname, int port, Executor executor)
+            throws IOException {
+        this.executor = executor;
         this.hostname = hostname;
         this.port = port;
     }
@@ -47,7 +48,7 @@ public class DefaultServerConnection implements ServerConnection {
                     // Nothing to do here.
                 }
             });
-            executorService.submit(() -> {
+            executor.execute(() -> {
                 try {
                     serializationManager.serialize(socket.getOutputStream(), requestBatch);
                     ResponseBatch responseBatch =
