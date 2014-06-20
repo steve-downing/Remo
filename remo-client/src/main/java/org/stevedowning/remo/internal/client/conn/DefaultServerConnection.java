@@ -39,7 +39,7 @@ public class DefaultServerConnection implements ServerConnection {
         final BasicFuture<ResponseBatch> future = new BasicFuture<>();
         try {
             final Socket socket = new Socket(hostname, port);            
-            future.addCancellationAction(() -> {
+            future.addCancellationInterrupt(() -> {
                 // Closing the socket will cause any pending serializations to throw an error.
                 try {
                     socket.close();

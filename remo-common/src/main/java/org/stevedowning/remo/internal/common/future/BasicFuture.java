@@ -1,6 +1,5 @@
 package org.stevedowning.remo.internal.common.future;
 
-import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
@@ -13,7 +12,7 @@ import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isError, isCancelled, isSuccess;
+    private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning;
     private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
@@ -26,6 +25,7 @@ public class BasicFuture<T> implements Future<T> {
         isSuccess = false;
         isCancelled = false;
         isError = false;
+        cancelMayInterruptIfRunning = false;
         error = new ErrorContainer();
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
@@ -58,13 +58,24 @@ public class BasicFuture<T> implements Future<T> {
         return this;
     }
     
+    /**
+     * This function adds an action that may interrupt execution when this Future is cancelled.
+     * It'll only fire if this is cancelled with the mayInterruptIfRunning flag.
+     */
+    public BasicFuture<T> addCancellationInterrupt(Runnable action) {
+        if (action == null) return this;
+        addCallback((Result<T> result) -> {
+            if (isCancelled && cancelMayInterruptIfRunning) action.run();
+        });
+        return this;
+    }
+    
     // TODO: public BasicFuture<T> addBlockingGetAction(Runnable action)
     // This will run an action at any time that a get() is called while !isDone.
     // Effectively, this allows other objects to be notified when a thread is
     // blocking on this result.
 
-    public T get(long timeout, TimeUnit unit)
-            throws InterruptedException, ExecutionException, IOException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
         if (doneLatch.await(timeout, unit)) {
             return get();
         } else {
@@ -72,7 +83,7 @@ public class BasicFuture<T> implements Future<T> {
         }
     }
 
-    public T get() throws InterruptedException, ExecutionException, IOException {
+    public T get() throws InterruptedException, ExecutionException {
         doneLatch.await();
         error.possiblyThrow();
         return val;
@@ -94,11 +105,12 @@ public class BasicFuture<T> implements Future<T> {
         return true;
     }
 
-    public boolean cancel() {
+    public boolean cancel(boolean mayInterruptIfRunning) {
         if (isDone()) return false;
         synchronized (this) {
             if (isDone()) return false;
             error.setError(new InterruptedException());
+            cancelMayInterruptIfRunning = mayInterruptIfRunning;
             isCancelled = true;
         }
         harden();

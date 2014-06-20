@@ -1,6 +1,5 @@
 package org.stevedowning.remo.internal.common.future;
 
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -41,12 +40,11 @@ public class PresetFuture<T> implements Future<T> {
         this.val = val;
     }
 
-    public T get() throws InterruptedException, ExecutionException, IOException {
+    public T get() throws InterruptedException, ExecutionException {
         error.possiblyThrow();
         return val;
     }
-    public T get(long timeout, TimeUnit unit) throws InterruptedException,
-            ExecutionException, IOException {
+    public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
         return get();
     }
 
@@ -64,5 +62,5 @@ public class PresetFuture<T> implements Future<T> {
     public boolean isError() { return error.hasError(); }
     public boolean isDone() { return true; }
     public boolean isCancelled() { return false; }
-    public boolean cancel() { return false; }
+    public boolean cancel(boolean mayInterruptIfRunning) { return false; }
 }
