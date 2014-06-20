@@ -5,7 +5,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.Callback;
@@ -17,11 +17,12 @@ public class BasicFuture<T> implements Future<T> {
     private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
-    private final ExecutorService executorService;
+    private final Executor executor;
 
     private final Queue<Callback<T>> callbacks;
 
-    public BasicFuture(ExecutorService executorService) {
+    public BasicFuture(Executor executor) {
+        if (executor == null) throw new IllegalArgumentException();
         isSuccess = false;
         isCancelled = false;
         isError = false;
@@ -29,11 +30,11 @@ public class BasicFuture<T> implements Future<T> {
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
         doneLatch = new CountDownLatch(1);
-        this.executorService = executorService;
+        this.executor = executor;
     }
     
     public BasicFuture() {
-        this(null);
+        this(new SameThreadExecutor());
     }
     
     public BasicFuture<T> addCallback(Callback<T> callback) {
@@ -128,10 +129,6 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     private void invokeCallback(Callback<T> callback) {
-        if (executorService == null) {
-            callback.handleResult(this);
-        } else {
-            executorService.submit(() -> callback.handleResult(this));
-        }
+        executor.execute(() -> callback.handleResult(this));
     }
 }
