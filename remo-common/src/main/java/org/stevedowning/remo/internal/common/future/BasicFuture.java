@@ -83,7 +83,7 @@ public class BasicFuture<T> implements Future<T> {
     public boolean isCancelled() { return isCancelled; }
     public boolean isSuccess() { return isSuccess; }
 
-    public synchronized boolean setVal(T val) {
+    public boolean setVal(T val) {
         if (isDone()) return false;
         synchronized (this) {
             if (isDone()) return false;
@@ -105,7 +105,7 @@ public class BasicFuture<T> implements Future<T> {
         return true;
     }
 
-    public synchronized boolean setException(Exception ex) {
+    public boolean setException(Exception ex) {
         if (isDone()) return false;
         synchronized (this) {
             if (isDone()) return false;
