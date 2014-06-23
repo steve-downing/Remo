@@ -12,13 +12,15 @@ import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
 
 public class BasicFuture<T> implements Future<T> {
-    private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning;
+    private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning,
+        hasWaitingClient;
     private final ErrorContainer error;
     private volatile T val;
     private final CountDownLatch doneLatch;
     private final Executor executor;
 
     private final Queue<Callback<T>> callbacks;
+    private final Queue<Runnable> waitingClientActions;
 
     public BasicFuture(Executor executor) {
         if (executor == null) throw new IllegalArgumentException();
@@ -26,9 +28,11 @@ public class BasicFuture<T> implements Future<T> {
         isCancelled = false;
         isError = false;
         cancelMayInterruptIfRunning = false;
+        hasWaitingClient = false;
         error = new ErrorContainer();
         val = null;
         callbacks = new ConcurrentLinkedQueue<Callback<T>>();
+        waitingClientActions = new ConcurrentLinkedQueue<Runnable>();
         doneLatch = new CountDownLatch(1);
         this.executor = executor;
     }
@@ -70,12 +74,33 @@ public class BasicFuture<T> implements Future<T> {
         return this;
     }
     
-    // TODO: public BasicFuture<T> addBlockingGetAction(Runnable action)
-    // This will run an action at any time that a get() is called while !isDone.
-    // Effectively, this allows other objects to be notified when a thread is
-    // blocking on this result.
+    /**
+     * This function adds an action that fires when a blocking get() is called on this Future.
+     * The lets the client know when a thread is actively waiting on this Future's result.
+     * If a thread has already called a blocking get() when this method is called, the action will
+     * be enqueued for execution. This is true even if the get() has expired or been cancelled.
+     * This action will often not fire at all. At most, it will fire once.
+     */
+    public BasicFuture<T> addBlockingGetAction(Runnable action) {
+        if (action == null || isDone()) return this;
+        if (hasWaitingClient) {
+            executor.execute(action);
+        } else {
+            waitingClientActions.offer(action);
+            if (isDone()) callbacks.remove(action);
+        }
+        return this;
+    }
+    
+    private void fireBlockingGetActions() {
+        for (Runnable action; (action = waitingClientActions.poll()) != null;) {
+            if (!isDone()) executor.execute(action);
+        }
+    }
 
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException {
+        hasWaitingClient = true;
+        fireBlockingGetActions();
         if (doneLatch.await(timeout, unit)) {
             return get();
         } else {
@@ -84,6 +109,8 @@ public class BasicFuture<T> implements Future<T> {
     }
 
     public T get() throws InterruptedException, ExecutionException {
+        hasWaitingClient = true;
+        fireBlockingGetActions();
         doneLatch.await();
         error.possiblyThrow();
         return val;
@@ -133,6 +160,7 @@ public class BasicFuture<T> implements Future<T> {
      */
     private void harden() {
         doneLatch.countDown();
+        waitingClientActions.clear();
         invokeCallbacks();
     }
 
