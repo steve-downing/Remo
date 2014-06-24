@@ -45,6 +45,7 @@ public interface MethodInvocationStrategy {
     
     default boolean isSerializable(Class<?> klass) {
         if (klass.equals(Void.class)) return true;
+        if (klass.isPrimitive()) return true;
         return Serializable.class.isAssignableFrom(klass);
     }
 }

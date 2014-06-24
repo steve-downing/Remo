@@ -11,8 +11,10 @@ import org.stevedowning.remo.internal.common.service.ServiceContext;
 
 public class NoResultMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
-       return method.getReturnType().equals(Void.class) && method.getExceptionTypes().length == 0 &&
-               areArgsSerializable(method);
+        boolean returnsVoid = method.getReturnType().equals(void.class);
+        boolean hasNoExceptions = method.getExceptionTypes().length == 0;
+        boolean hasSerializableArgs = areArgsSerializable(method);
+        return returnsVoid && hasNoExceptions && hasSerializableArgs;
     }
 
     @Override
@@ -22,6 +24,7 @@ public class NoResultMethodInvocationStrategy implements MethodInvocationStrateg
             throws IOException, InterruptedException, ExecutionException {
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
+        // Don't wait around for a return value. Just fire and forget the request.
         requestHandler.submitRequest(request);
         return null;
     }
