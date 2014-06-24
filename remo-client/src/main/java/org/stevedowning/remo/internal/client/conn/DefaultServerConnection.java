@@ -39,6 +39,8 @@ public class DefaultServerConnection implements ServerConnection {
     public Future<ResponseBatch> send(final RequestBatch requestBatch) {
         final BasicFuture<ResponseBatch> future = new BasicFuture<>();
         try {
+            // TODO: Open the socket from the other thread.
+            // TODO: In fact, switch this to an architecture that pulls requests off a queue from another thread.
             final Socket socket = new Socket(hostname, port);            
             future.addCancellationInterrupt(() -> {
                 // Closing the socket will cause any pending serializations to throw an error.
