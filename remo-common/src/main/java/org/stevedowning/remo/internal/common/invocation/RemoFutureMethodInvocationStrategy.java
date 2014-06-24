@@ -13,7 +13,7 @@ import org.stevedowning.remo.internal.common.service.ServiceContext;
 
 public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
-        return method.getReturnType().equals(Future.class);
+        return method.getReturnType().equals(Future.class) && areArgsSerializable(method);
     }
 
     public Object getVal(IdFactory idFactory, RequestHandler requestHandler,

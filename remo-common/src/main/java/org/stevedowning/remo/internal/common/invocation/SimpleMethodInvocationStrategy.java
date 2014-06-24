@@ -12,8 +12,7 @@ import org.stevedowning.remo.internal.common.service.ServiceContext;
 
 public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
-        // TODO: Check for serializable args and return val.
-        return true;
+        return areArgsAndReturnTypeSerializable(method);
     }
 
     public Object getVal(IdFactory idFactory, RequestHandler requestHandler,

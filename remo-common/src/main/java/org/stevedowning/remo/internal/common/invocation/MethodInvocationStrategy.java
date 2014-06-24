@@ -1,6 +1,7 @@
 package org.stevedowning.remo.internal.common.invocation;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
@@ -28,5 +29,22 @@ public interface MethodInvocationStrategy {
             serializedArgs[i] = serializationManager.serialize(args[i]);
         }
         return new Request(requestId, new ServiceMethodId(method), serializedArgs);
+    }
+    
+    default boolean areArgsAndReturnTypeSerializable(Method method) {
+        if (!isSerializable(method.getReturnType())) return false;
+        return areArgsSerializable(method);
+    }
+    
+    default boolean areArgsSerializable(Method method) {
+        for (Class<?> klass : method.getParameterTypes()) {
+            if (!isSerializable(klass)) return false;
+        }
+        return true;
+    }
+    
+    default boolean isSerializable(Class<?> klass) {
+        if (klass.equals(Void.class)) return true;
+        return Serializable.class.isAssignableFrom(klass);
     }
 }
