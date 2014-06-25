@@ -38,7 +38,7 @@ public class DefaultServerConnection implements ServerConnection {
     @Override
     public Future<ResponseBatch> send(final RequestBatch requestBatch) {
         final BasicFuture<ResponseBatch> future = new BasicFuture<>(executor);
-        // TODO: In fact, switch this to an architecture that pulls requests off a queue from another thread.
+        // TODO: Switch this to an architecture that pulls requests off a queue from another thread.
         executor.execute(() -> {
             try {
                 final Socket socket = new Socket(hostname, port);
