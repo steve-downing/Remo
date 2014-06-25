@@ -37,19 +37,21 @@ public class DefaultServerConnection implements ServerConnection {
 
     @Override
     public Future<ResponseBatch> send(final RequestBatch requestBatch) {
-        final BasicFuture<ResponseBatch> future = new BasicFuture<>();
-        try {
-            final Socket socket = new Socket(hostname, port);            
-            future.addCancellationInterrupt(() -> {
-                // Closing the socket will cause any pending serializations to throw an error.
+        final BasicFuture<ResponseBatch> future = new BasicFuture<>(executor);
+        // TODO: Switch this to an architecture that pulls requests off a queue from another thread.
+        executor.execute(() -> {
+            try {
+                final Socket socket = new Socket(hostname, port);
                 try {
-                    socket.close();
-                } catch (IOException e) {
-                    // Nothing to do here.
-                }
-            });
-            executor.execute(() -> {
-                try {
+                    future.addCancellationInterrupt(() -> {
+                        // Closing the socket will cause any pending serializations to throw an
+                        // error.
+                        try {
+                            socket.close();
+                        } catch (IOException e) {
+                            // Nothing to do here.
+                        }
+                    });
                     serializationManager.serialize(socket.getOutputStream(), requestBatch);
                     ResponseBatch responseBatch =
                             serializationManager.deserialize(socket.getInputStream());
@@ -60,15 +62,15 @@ public class DefaultServerConnection implements ServerConnection {
                     future.setException(new ExecutionException(e));
                 } finally {
                     try {
-                        socket.close();
+                        if (socket != null) socket.close();
                     } catch (IOException e) {
                         // Nothing to do here.
                     }
                 }
-            });
-        } catch (IOException e) {
-            future.setException(e);
-        }
+            } catch (IOException e) {
+                future.setException(e);
+            }
+        });
         return future;
     }
 }
