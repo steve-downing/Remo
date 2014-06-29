@@ -10,6 +10,7 @@ import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
+import org.stevedowning.remo.internal.common.service.ServiceMethod;
 
 public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
@@ -29,7 +30,7 @@ public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrat
     }
 
     @Override
-    public Object invokeServiceMethod(Method method, Object handler,
+    public Object invokeServiceMethod(ServiceMethod method, Object handler,
             Object[] args) throws Exception {
         // TODO: Handle InvocationTargetExceptions?
         return ((Future<?>)method.invoke(handler, args)).get();

@@ -8,6 +8,7 @@ import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
+import org.stevedowning.remo.internal.common.service.ServiceMethod;
 
 public class NoResultMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {
@@ -30,7 +31,7 @@ public class NoResultMethodInvocationStrategy implements MethodInvocationStrateg
     }
 
     @Override
-    public Object invokeServiceMethod(Method method, Object handler, Object[] args)
+    public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)
             throws Exception {
         return method.invoke(handler, args);
     }

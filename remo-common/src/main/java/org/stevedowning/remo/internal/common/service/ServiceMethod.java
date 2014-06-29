@@ -1,5 +1,6 @@
 package org.stevedowning.remo.internal.common.service;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.Identifiable;
@@ -17,6 +18,17 @@ public class ServiceMethod implements Identifiable<ServiceMethod> {
     }
 
     public ServiceMethodId getId() { return id; }
-    public Method getMethod() { return method; }
     public MethodInvocationStrategy getInvocationStrategy() { return invocationStrategy; }
+    public Object invoke(Object handler, Object[] args) throws Exception {
+        try {
+            return method.invoke(handler, args);
+        } catch (InvocationTargetException ex) {
+            Throwable cause = ex.getCause();
+            if (cause != null && cause instanceof Exception) {
+                throw (Exception)cause;
+            } else {
+                throw ex;
+            }
+        }
+    }
 }
