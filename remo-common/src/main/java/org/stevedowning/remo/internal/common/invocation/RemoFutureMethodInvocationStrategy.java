@@ -32,7 +32,6 @@ public class RemoFutureMethodInvocationStrategy implements MethodInvocationStrat
     @Override
     public Object invokeServiceMethod(ServiceMethod method, Object handler,
             Object[] args) throws Exception {
-        // TODO: Handle InvocationTargetExceptions?
         return ((Future<?>)method.invoke(handler, args)).get();
     }
 }
