@@ -17,8 +17,8 @@ public class FutureMethodInvocationStrategy implements MethodInvocationStrategy 
         Class<?> returnType = method.getReturnType();
         // We can handle this method if it returns a Java Future, a Remo Future, or anything in
         // between.
-        boolean returnsFuture = java.util.concurrent.Future.class.isAssignableFrom(returnType) &&
-                returnType.isAssignableFrom(org.stevedowning.remo.Future.class);
+        boolean returnsFuture = isBetweenInClassHierarchy(
+                java.util.concurrent.Future.class, org.stevedowning.remo.Future.class, returnType);
         return returnsFuture && areArgsSerializable(method);
     }
 

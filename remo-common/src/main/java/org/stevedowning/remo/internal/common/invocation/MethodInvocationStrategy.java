@@ -59,4 +59,9 @@ public interface MethodInvocationStrategy {
             return ex;
         }
     }
+    
+    default boolean isBetweenInClassHierarchy(
+            Class<?> superclass, Class<?> subclass, Class<?> klass) {
+        return superclass.isAssignableFrom(klass) && klass.isAssignableFrom(subclass);
+    }
 }
