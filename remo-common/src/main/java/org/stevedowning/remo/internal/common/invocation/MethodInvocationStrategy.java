@@ -16,7 +16,7 @@ import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
 public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);
-    public Object getVal(IdFactory idFactory, RequestHandler requestHandler,
+    public Object handleClientInvocation(IdFactory idFactory, RequestHandler requestHandler,
             SerializationManager serializationManager, ServiceContext serviceContext,
             Method method, Object[] args)
                     throws IOException, InterruptedException, ExecutionException;

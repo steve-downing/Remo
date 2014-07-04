@@ -22,7 +22,7 @@ public class FutureMethodInvocationStrategy implements MethodInvocationStrategy 
         return returnsFuture && areArgsSerializable(method);
     }
 
-    public Object getVal(IdFactory idFactory, RequestHandler requestHandler,
+    public Object handleClientInvocation(IdFactory idFactory, RequestHandler requestHandler,
             SerializationManager serializationManager,
             ServiceContext serviceContext, Method method, Object[] args)
             throws IOException, InterruptedException, ExecutionException {
