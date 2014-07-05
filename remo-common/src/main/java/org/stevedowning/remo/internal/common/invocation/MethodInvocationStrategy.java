@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.concurrent.ExecutionException;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
