@@ -35,6 +35,6 @@ public class ServiceInterface {
             throw new NoSuchMethodException();
         }
         MethodInvocationStrategy strategy = serviceMethod.getInvocationStrategy();
-        return strategy.invokeServiceMethod(serviceMethod.getMethod(), handler, args);
+        return strategy.invokeServiceMethod(serviceMethod, handler, args);
     }
 }

@@ -34,7 +34,7 @@ public class ServiceProxy implements InvocationHandler {
         // TODO: Be smarter about batching instead of sending one batch per request.
         RequestHandler requestHandler = new SimpleRequestHandler(idFactory, conn);
         // TODO: This is an unweildy number of args. Find a way to inject some of them instead.
-        return strategy.getVal(idFactory, requestHandler, serializationManager, serviceContext,
+        return strategy.handleClientInvocation(idFactory, requestHandler, serializationManager, serviceContext,
                 method, args);
     }
 }

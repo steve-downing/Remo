@@ -4,7 +4,8 @@ import java.lang.reflect.Method;
 
 public class MethodInvocationStrategySelector {
     private final MethodInvocationStrategy[] strategies = {
-            new RemoFutureMethodInvocationStrategy(),
+            new FutureMethodInvocationStrategy(),
+            new GuavaFutureMethodInvocationStrategy(),
             new NoResultMethodInvocationStrategy(),
             new SimpleMethodInvocationStrategy()
     };
