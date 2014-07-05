@@ -46,7 +46,7 @@ public class GuavaFutureMethodInvocationStrategy implements MethodInvocationStra
             IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         Method setMethod = getFutureClass().getDeclaredMethod("set", Object.class);
         setMethod.setAccessible(true);
-        setMethod.invoke(future,  val);
+        setMethod.invoke(future, val);
     }
 
     private void setFutureException(Object /* SettableFuture */ future, Object val) {
