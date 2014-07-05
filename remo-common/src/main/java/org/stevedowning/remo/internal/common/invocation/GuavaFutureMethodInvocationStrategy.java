@@ -53,7 +53,7 @@ public class GuavaFutureMethodInvocationStrategy implements MethodInvocationStra
         try {
             Method setMethod = getFutureClass().getDeclaredMethod("setException", Throwable.class);
             setMethod.setAccessible(true);
-            setMethod.invoke(future,  val);
+            setMethod.invoke(future, val);
         } catch (Exception ex) {
             // TODO: Log an error somewhere.
         }
