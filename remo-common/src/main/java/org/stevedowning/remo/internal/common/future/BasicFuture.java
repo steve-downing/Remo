@@ -31,8 +31,8 @@ public class BasicFuture<T> implements Future<T> {
         hasWaitingClient = false;
         error = new ErrorContainer();
         val = null;
-        callbacks = new ConcurrentLinkedQueue<Callback<T>>();
-        waitingClientActions = new ConcurrentLinkedQueue<Runnable>();
+        callbacks = new ConcurrentLinkedQueue<>();
+        waitingClientActions = new ConcurrentLinkedQueue<>();
         doneLatch = new CountDownLatch(1);
         this.executor = executor;
     }
