@@ -13,6 +13,8 @@ public class ServiceMethodId implements Id<ServiceMethod>, Serializable {
     public ServiceMethodId(Method m) {
         this.methodStr = m.toGenericString();
     }
+    
+    public String toString() { return methodStr; }
 
     @Override
     public int hashCode() {
