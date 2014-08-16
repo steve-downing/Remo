@@ -52,6 +52,7 @@ public class DefaultServiceRunner implements ServiceRunner {
             shutdownRequested = true;
             return future;
         }
+
         public boolean isRunning() { return isRunning.get(); }
     }
     
@@ -70,6 +71,7 @@ public class DefaultServiceRunner implements ServiceRunner {
         ServiceInterface serviceInterface = new ServiceInterface(serviceContract, handler);
         ServiceLoop serviceLoop = new ServiceLoop(serviceInterface, serverSocket);
         new Thread(serviceLoop, serviceContract.getSimpleName()).start();
+        while (!serviceLoop.isRunning());
         return serviceLoop;
     }
     
