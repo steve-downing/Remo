@@ -26,7 +26,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         if (val == null) return null;
         try {
             return transformFunction.apply(val);
-        } catch (Exception ex) {
+        } catch (Throwable ex) {
             isTransformationError = true;
             throw new ExecutionException(ex);
         }

@@ -88,7 +88,6 @@ public class DefaultServiceRunner implements ServiceRunner {
         }
 
         // TODO: Optionally sanitize exceptions here.
-        // TODO: Exceptions don't seem to be deserializing correctly.
         String resultStr = serializationManager.serialize(result);
         Response response = new Response(request.getId(), resultStr, success);
         responseBatch.addResponse(response);

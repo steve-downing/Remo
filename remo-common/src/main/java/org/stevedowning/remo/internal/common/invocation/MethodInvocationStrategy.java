@@ -17,7 +17,7 @@ public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);
     public Object handleClientInvocation(IdFactory idFactory, RequestHandler requestHandler,
             SerializationManager serializationManager, ServiceContext serviceContext,
-            Method method, Object[] args) throws Exception;
+            Method method, Object[] args) throws Throwable;
     public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)
             throws Exception;
     
