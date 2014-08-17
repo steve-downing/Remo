@@ -20,12 +20,7 @@ public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy 
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
         Response response = requestHandler.submitRequest(request).get();
-        Object val = serializationManager.deserialize(response.getSerializedResult());
-        if (!response.isSuccess() && val instanceof Throwable) {
-            throw (Throwable)val;
-        } else {
-            return val;
-        }
+        return getOrThrowFromResponse(serializationManager, response);
     }
 
     public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)

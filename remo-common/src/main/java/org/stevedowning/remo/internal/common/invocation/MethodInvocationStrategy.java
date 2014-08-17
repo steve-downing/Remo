@@ -2,12 +2,12 @@ package org.stevedowning.remo.internal.common.invocation;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
@@ -47,6 +47,16 @@ public interface MethodInvocationStrategy {
         if (klass.equals(Void.class)) return true;
         if (klass.isPrimitive()) return true;
         return Serializable.class.isAssignableFrom(klass);
+    }
+    
+    default Object getOrThrowFromResponse(SerializationManager serializationManager,
+            Response response) throws Throwable {
+        Object val = serializationManager.deserialize(response.getSerializedResult());
+        if (!response.isSuccess() && val instanceof Throwable) {
+            throw (Throwable)val;
+        } else {
+            return val;
+        }
     }
     
     default boolean isBetweenInClassHierarchy(
