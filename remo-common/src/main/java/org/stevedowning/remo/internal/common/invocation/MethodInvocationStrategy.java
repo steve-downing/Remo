@@ -49,15 +49,6 @@ public interface MethodInvocationStrategy {
         return Serializable.class.isAssignableFrom(klass);
     }
     
-    default Exception extractInvocationException(InvocationTargetException ex) {
-        Throwable cause = ex.getCause();
-        if (cause != null && cause instanceof Exception) {
-            return (Exception)cause;
-        } else {
-            return ex;
-        }
-    }
-    
     default boolean isBetweenInClassHierarchy(
             Class<?> superclass, Class<?> subclass, Class<?> klass) {
         return superclass.isAssignableFrom(klass) && klass.isAssignableFrom(subclass);
