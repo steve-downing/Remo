@@ -31,8 +31,8 @@ public class BasicFuture<T> implements Future<T> {
         hasWaitingClient = false;
         error = new ErrorContainer();
         val = null;
-        callbacks = new ConcurrentLinkedQueue<Callback<T>>();
-        waitingClientActions = new ConcurrentLinkedQueue<Runnable>();
+        callbacks = new ConcurrentLinkedQueue<>();
+        waitingClientActions = new ConcurrentLinkedQueue<>();
         doneLatch = new CountDownLatch(1);
         this.executor = executor;
     }
@@ -76,7 +76,7 @@ public class BasicFuture<T> implements Future<T> {
     
     /**
      * This function adds an action that fires when a blocking get() is called on this Future.
-     * The lets the client know when a thread is actively waiting on this Future's result.
+     * This lets the client know when a thread is actively waiting on this Future's result.
      * If a thread has already called a blocking get() when this method is called, the action will
      * be enqueued for execution. This is true even if the get() has expired or been cancelled.
      * This action will often not fire at all. At most, it will fire once.

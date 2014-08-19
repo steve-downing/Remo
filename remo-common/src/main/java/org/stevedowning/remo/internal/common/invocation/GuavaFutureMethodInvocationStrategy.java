@@ -1,10 +1,11 @@
 package org.stevedowning.remo.internal.common.invocation;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.Result;
+import org.stevedowning.remo.internal.common.invocation.futureproxy.FutureProxy;
+import org.stevedowning.remo.internal.common.invocation.futureproxy.GuavaFutureProxy;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
@@ -25,58 +26,29 @@ public class GuavaFutureMethodInvocationStrategy implements MethodInvocationStra
                 idFactory, serializationManager, serviceContext, method, args);
         // TODO: Cancel the request on the server if the Future gets a cancel() request.
         //       We may have to do this by wrapping the Guava Future in a proxy class.
-        final Object future = getFuture();
+        final FutureProxy future = new GuavaFutureProxy();
         requestHandler.submitRequest(request).addCallback((Result<Response> result) -> {
             try {
                 Object val = serializationManager.deserialize(result.get().getSerializedResult());
                 if (result.isSuccess()) {
-                    setFutureVal(future, val);
+                    future.set(val);
                 } else {
-                    setFutureException(future, val);
+                    future.setException(val);
                 }
             } catch (Exception ex) {
-                setFutureException(future, ex);
+                try {
+                    future.setException(ex);
+                } catch (Exception e) {
+                    // TODO: Log an error somewhere.
+                }
             }
         });
-        return future;
-    }
-    
-    private void setFutureVal(Object /* SettableFuture */ future, Object val)
-            throws NoSuchMethodException, SecurityException, ClassNotFoundException,
-            IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        Method setMethod = getFutureClass().getDeclaredMethod("set", Object.class);
-        setMethod.setAccessible(true);
-        setMethod.invoke(future,  val);
-    }
-
-    private void setFutureException(Object /* SettableFuture */ future, Object val) {
-        try {
-            Method setMethod = getFutureClass().getDeclaredMethod("setException", Throwable.class);
-            setMethod.setAccessible(true);
-            setMethod.invoke(future,  val);
-        } catch (Exception ex) {
-            // TODO: Log an error somewhere.
-        }
-    }
-
-    private Object /* SettableFuture */ getFuture() throws ClassNotFoundException,
-            NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        Method createMethod = getFutureClass().getDeclaredMethod("create");
-        createMethod.setAccessible(true);
-        return createMethod.invoke(null);
+        return future.getBackingFuture();
     }
 
     public Object invokeServiceMethod(ServiceMethod method, Object handler,
             Object[] args) throws Exception {
-        Object listenableFuture = method.invoke(handler, args);
-        Method getMethod = listenableFuture.getClass().getMethod("get");
-        getMethod.setAccessible(true);
-        return getMethod.invoke(listenableFuture);
-    }
-    
-    private Class<?> getFutureClass() throws ClassNotFoundException {
-        return Thread.currentThread().getContextClassLoader().loadClass(
-                "com.google.common.util.concurrent.SettableFuture");
+        FutureProxy futureProxy = new GuavaFutureProxy(method.invoke(handler, args));
+        return futureProxy.get();
     }
 }

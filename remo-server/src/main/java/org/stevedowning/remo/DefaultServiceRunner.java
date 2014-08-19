@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.stevedowning.remo.internal.common.future.CompletionFuture;
+import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
 import org.stevedowning.remo.internal.common.response.Response;
@@ -20,7 +22,7 @@ public class DefaultServiceRunner implements ServiceRunner {
     
     private class ServiceLoop implements Runnable, ServiceHandle {
         private volatile boolean shutdownRequested = false;
-        private volatile boolean isRunning = false;
+        private volatile ObservableValue<Boolean> isRunning = new ObservableValue<>(false);
         
         private final ServiceInterface serviceInterface;
         private final ServerSocket serverSocket;
@@ -32,7 +34,7 @@ public class DefaultServiceRunner implements ServiceRunner {
 
         public void run() {
             shutdownRequested = false;
-            isRunning = true;
+            isRunning.set(true);
             while (!shutdownRequested && !Thread.interrupted()) {
                 try {
                     Socket clientSocket = serverSocket.accept();
@@ -41,12 +43,17 @@ public class DefaultServiceRunner implements ServiceRunner {
                     logError("Error handling request", e);
                 }
             }
-            isRunning = false;
+            isRunning.set(false);
         }
 
-        // TODO: Have this return a future
-        public void safeShutdown() { shutdownRequested = true; }
-        public boolean isRunning() { return isRunning; }
+        public CompletionFuture safeShutdown() {
+            CompletionFuture future = CompletionFuture.getCompletionFuture(
+                    isRunning, (Boolean isRunning) -> !isRunning);
+            shutdownRequested = true;
+            return future;
+        }
+
+        public boolean isRunning() { return isRunning.get(); }
     }
     
     private void logError(String message, Exception e) {
@@ -64,6 +71,7 @@ public class DefaultServiceRunner implements ServiceRunner {
         ServiceInterface serviceInterface = new ServiceInterface(serviceContract, handler);
         ServiceLoop serviceLoop = new ServiceLoop(serviceInterface, serverSocket);
         new Thread(serviceLoop, serviceContract.getSimpleName()).start();
+        while (!serviceLoop.isRunning());
         return serviceLoop;
     }
     
@@ -80,7 +88,6 @@ public class DefaultServiceRunner implements ServiceRunner {
         }
 
         // TODO: Optionally sanitize exceptions here.
-        // TODO: Exceptions don't seem to be deserializing correctly.
         String resultStr = serializationManager.serialize(result);
         Response response = new Response(request.getId(), resultStr, success);
         responseBatch.addResponse(response);

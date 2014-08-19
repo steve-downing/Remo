@@ -2,12 +2,12 @@ package org.stevedowning.remo.internal.common.invocation;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
@@ -17,7 +17,7 @@ public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);
     public Object handleClientInvocation(IdFactory idFactory, RequestHandler requestHandler,
             SerializationManager serializationManager, ServiceContext serviceContext,
-            Method method, Object[] args) throws Exception;
+            Method method, Object[] args) throws Throwable;
     public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)
             throws Exception;
     
@@ -49,12 +49,13 @@ public interface MethodInvocationStrategy {
         return Serializable.class.isAssignableFrom(klass);
     }
     
-    default Exception extractInvocationException(InvocationTargetException ex) {
-        Throwable cause = ex.getCause();
-        if (cause != null && cause instanceof Exception) {
-            return (Exception)cause;
+    default Object getOrThrowFromResponse(SerializationManager serializationManager,
+            Response response) throws Throwable {
+        Object val = serializationManager.deserialize(response.getSerializedResult());
+        if (!response.isSuccess() && val instanceof Throwable) {
+            throw (Throwable)val;
         } else {
-            return ex;
+            return val;
         }
     }
     

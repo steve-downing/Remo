@@ -29,9 +29,9 @@ public class FutureMethodInvocationStrategy implements MethodInvocationStrategy 
         Request request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
         // TODO: Cancel the request on the server if the Future gets a cancel() request.
-        return requestHandler.submitRequest(request).transform((Response result) -> {
-            return serializationManager.deserialize(result.getSerializedResult());
-        });
+        return requestHandler.submitRequest(request).transform((Response response) ->
+            getOrThrowFromResponse(serializationManager, response)
+        );
     }
 
     @Override
