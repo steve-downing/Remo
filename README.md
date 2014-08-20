@@ -16,7 +16,7 @@ First, create an interface for the service you'd like to provide. This interface
 Server-side:
 
     // This instantiates a BookmarkServiceImpl and uses it to handle requests.
-    // It honors the BookMarkService contract described above and serves it on port 8080.
+    // It honors the BookmarkService contract described above and serves it on port 8080.
     new NetServiceRunner().runService(new BookmarkServiceImpl(), BookmarkService.class, 8080);
 
 You provide the service implementation, but it's just one line of code and zero lines of configuration to fire up your service.
