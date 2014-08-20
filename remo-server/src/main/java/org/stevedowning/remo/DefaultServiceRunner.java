@@ -67,6 +67,7 @@ public class DefaultServiceRunner implements ServiceRunner {
         if (!serviceContract.isInterface()) {
             throw new IllegalArgumentException("The serviceContract should be an interface.");
         }
+        // TODO: Do a bunch more checks, like seeing if everything's Serializable.
         ServerSocket serverSocket = new ServerSocket(port);
         ServiceInterface serviceInterface = new ServiceInterface(serviceContract, handler);
         ServiceLoop serviceLoop = new ServiceLoop(serviceInterface, serverSocket);
