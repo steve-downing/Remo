@@ -16,7 +16,7 @@ import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
 
-public class DefaultServiceRunner implements ServiceRunner {
+public class NetServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
     private final Executor executor = Executors.newCachedThreadPool();
     
