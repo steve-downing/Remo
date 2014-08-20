@@ -2,7 +2,7 @@ package org.stevedowning.remo.example;
 
 import java.io.IOException;
 
-import org.stevedowning.remo.DefaultServiceRunner;
+import org.stevedowning.remo.NetServiceRunner;
 
 public class ExampleServer {
     private static class ExampleServiceImpl implements ExampleContract {
@@ -28,7 +28,7 @@ public class ExampleServer {
     
     public static void main(String[] args) throws IOException {
         int port = 12345;
-        new DefaultServiceRunner().runService(
+        new NetServiceRunner().runService(
                 new ExampleServiceImpl(), ExampleContract.class, port);
         System.out.println("Example service reporting for duty on port " + port);
     }

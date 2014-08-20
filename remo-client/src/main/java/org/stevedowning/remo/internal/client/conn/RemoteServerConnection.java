@@ -14,7 +14,7 @@ import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 
-public class DefaultServerConnection implements ServerConnection {
+public class RemoteServerConnection implements ServerConnection {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
     private final Executor executor;
     private final String hostname;
@@ -24,11 +24,11 @@ public class DefaultServerConnection implements ServerConnection {
         return Executors.newCachedThreadPool();
     }
 
-    public DefaultServerConnection(String hostname, int port) throws IOException {
+    public RemoteServerConnection(String hostname, int port) throws IOException {
         this(hostname, port, getDefaultExecutorService());
     }
 
-    public DefaultServerConnection(String hostname, int port, Executor executor)
+    public RemoteServerConnection(String hostname, int port, Executor executor)
             throws IOException {
         this.executor = executor;
         this.hostname = hostname;

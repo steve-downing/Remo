@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 
-import org.stevedowning.remo.internal.client.conn.DefaultServerConnection;
+import org.stevedowning.remo.internal.client.conn.RemoteServerConnection;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
 import org.stevedowning.remo.internal.client.service.ServiceProxy;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
@@ -24,7 +24,7 @@ public class RemoteServiceClientFactory implements ClientFactory {
     public <T> T getService(Class<T> serviceType)
             throws IOException {
         Class<?>[] serviceTypes = new Class<?>[] { serviceType };
-        ServerConnection conn = new DefaultServerConnection(hostname, port);
+        ServerConnection conn = new RemoteServerConnection(hostname, port);
         SerializationManager serializationManager = new DefaultSerializationManager();
         InvocationHandler serviceProxy =
                 new ServiceProxy(conn, serializationManager, ServiceContext.getBaseContext());
