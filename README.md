@@ -24,7 +24,7 @@ You provide the service implementation, but it's just one line of code and zero 
 Client-side:
 
     // This creates a hook to a service we've hosted on api.bookmarks.com:8080.
-    // A call to any bookmarkService method will execute remotely.
+    // A call to any BookmarkService method will execute remotely.
     BookmarkService bookmarkService =
         new RemoteServiceClientFactory("api.bookmarks.com", 8080).getService(BookmarkService.class);
 
