@@ -15,6 +15,10 @@ import org.stevedowning.remo.internal.common.service.ServiceMethodId;
 
 public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);
+    // TODO: Provide a function that takes a method and tries to provide useful feedback about
+    //       why this strategy can't handle that method.
+    //       For example, suppose it's a function where one of the param types isn't Serializable
+    //       or it returns a type of Guava Future that isn't supported.
     public Object handleClientInvocation(IdFactory idFactory, RequestHandler requestHandler,
             SerializationManager serializationManager, ServiceContext serviceContext,
             Method method, Object[] args) throws Throwable;
