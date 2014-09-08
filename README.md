@@ -1,6 +1,6 @@
 # Remo
 
-Remo is a quick and easy RPC framework for Java that stays out of your way. No config files and minimal boilerplate are necessary to get a simple service up and running.
+Remo is a quick and easy RPC library for Java that stays out of your way. No config files and minimal boilerplate are necessary to get a simple service up and running.
 
 ## Basic Usage
 
