@@ -18,7 +18,12 @@ import org.stevedowning.remo.internal.server.service.ServiceInterface;
 
 public class NetServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
-    private final Executor executor = Executors.newCachedThreadPool();
+    private volatile Executor executor = Executors.newCachedThreadPool();
+    
+    public NetServiceRunner useExecutor(Executor executor) {
+        this.executor = executor;
+        return this;
+    }
     
     private class ServiceLoop implements Runnable, ServiceHandle {
         private volatile boolean shutdownRequested = false;
@@ -114,6 +119,8 @@ public class NetServiceRunner implements ServiceRunner {
                 ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
                 // TODO: Delegate these requests to different threads.
                 for (Request request : requestBatch) {
+                    // TODO: Separate the Executor for deserialization and pumping requests onto
+                    //       the queue vs the Executor for actually handling the requests.
                     handleRequest(service, responseBatch, request);
                 }
                 // TODO: Serialize the individual responses out as they become available
