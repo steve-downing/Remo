@@ -8,8 +8,10 @@ import java.util.concurrent.Executors;
 
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
 import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
+import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
+import org.stevedowning.remo.internal.common.request.RequestVisitor;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
@@ -82,24 +84,40 @@ public class NetServiceRunner implements ServiceRunner {
     }
     
     private void handleRequest(ServiceInterface service, ResponseBatch responseBatch,
-            Request request) throws IOException {
-        boolean success = true;
-        Object result = null;
-        try {
-            result = getServiceRetVal(service, request);
-        } catch (Exception ex) {
-            success = false;
-            result = ex;
-            logError("Error handling request", ex);
-        }
+            Request request) {
+        request.accept(new RequestVisitor() {
+            public void visit(InvocationRequest invocationRequest) {
+                boolean success = true;
+                Object result = null;
+                try {
+                    result = getServiceRetVal(service, invocationRequest);
+                } catch (Exception ex) {
+                    success = false;
+                    result = ex;
+                    logError("Error handling request", ex);
+                }
 
-        // TODO: Optionally sanitize exceptions here.
-        String resultStr = serializationManager.serialize(result);
-        Response response = new Response(request.getId(), resultStr, success);
-        responseBatch.addResponse(response);
+                // TODO: Optionally sanitize exceptions here.
+                String resultStr;
+                try {
+                    resultStr = serializationManager.serialize(result);
+                } catch (IOException e) {
+                    success = false;
+                    try {
+                        resultStr = serializationManager.serialize(
+                                new IOException("Serialization failed"));
+                    } catch (IOException e1) {
+                        resultStr = "";
+                        logError("Error handling response", e);
+                    }
+                }
+                Response response = new Response(request.getId(), resultStr, success);
+                responseBatch.addResponse(response);
+            }
+        });
     }
 
-    private Object getServiceRetVal(ServiceInterface service, Request request)
+    private Object getServiceRetVal(ServiceInterface service, InvocationRequest request)
             throws Exception {
         String[] serializedParams = request.getSerializedParams();
         Object[] params = new Object[serializedParams.length];

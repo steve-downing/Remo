@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.idfactory.IdFactory;
+import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
@@ -25,14 +26,14 @@ public interface MethodInvocationStrategy {
     public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)
             throws Exception;
     
-    default Request createRequest(IdFactory idFactory, SerializationManager serializationManager,
+    default InvocationRequest createRequest(IdFactory idFactory, SerializationManager serializationManager,
             ServiceContext serviceContext, Method method, Object[] args) throws IOException {
         Id<Request> requestId = idFactory.generateId();
         String[] serializedArgs = new String[args.length];
         for (int i = 0; i < args.length; ++i) {
             serializedArgs[i] = serializationManager.serialize(args[i]);
         }
-        return new Request(requestId, new ServiceMethodId(method), serializedArgs);
+        return new InvocationRequest(requestId, new ServiceMethodId(method), serializedArgs);
     }
     
     default boolean areArgsAndReturnTypeSerializable(Method method) {
