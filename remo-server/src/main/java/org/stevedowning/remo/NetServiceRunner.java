@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
 import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
+import org.stevedowning.remo.internal.common.request.CancellationRequest;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
@@ -113,6 +114,10 @@ public class NetServiceRunner implements ServiceRunner {
                 }
                 Response response = new Response(request.getId(), resultStr, success);
                 responseBatch.addResponse(response);
+            }
+
+            public void visit(CancellationRequest cancellationRequest) {
+                // TODO Auto-generated method stub
             }
         });
     }
