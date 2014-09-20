@@ -1,11 +1,14 @@
 package org.stevedowning.remo.internal.common;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Random;
 
 import org.stevedowning.commons.idyll.Id;
 
-public class ClientId implements Id<Object> {
+public class ClientId implements Id<Object>, Serializable {
+    private static final long serialVersionUID = 1829355624289827151L;
+
     private long timestamp;
     private long secret;
     
