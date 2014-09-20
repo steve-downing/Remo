@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
+import org.stevedowning.remo.internal.common.CancellationAction;
 
 public class PresetFuture<T> implements Future<T> {
     private final T val;
@@ -56,7 +57,7 @@ public class PresetFuture<T> implements Future<T> {
         }
         return this;
     }
-    public PresetFuture<T> addCancellationAction(Runnable action) { return this; }
+    public PresetFuture<T> addCancellationAction(CancellationAction action) { return this; }
 
     public boolean isSuccess() { return !isError(); }
     public boolean isError() { return error.hasError(); }

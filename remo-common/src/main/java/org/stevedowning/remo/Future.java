@@ -3,12 +3,13 @@ package org.stevedowning.remo;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.stevedowning.remo.internal.common.CancellationAction;
 import org.stevedowning.remo.internal.common.future.TransformedFuture;
 
 public interface Future<T> extends Result<T>, java.util.concurrent.Future<T> {
     public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException;
     public Future<T> addCallback(Callback<T> callback);
-    public Future<T> addCancellationAction(Runnable action);
+    public Future<T> addCancellationAction(CancellationAction action);
     public boolean isDone();
     public boolean isError();
     public boolean isCancelled();

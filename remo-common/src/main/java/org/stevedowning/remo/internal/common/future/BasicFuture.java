@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
+import org.stevedowning.remo.internal.common.CancellationAction;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning,
@@ -56,7 +57,7 @@ public class BasicFuture<T> implements Future<T> {
         return this;
     }
     
-    public BasicFuture<T> addCancellationAction(Runnable action) {
+    public BasicFuture<T> addCancellationAction(CancellationAction action) {
         if (action == null) return this;
         addCallback((Result<T> result) -> { if (isCancelled) action.run(); });
         return this;
