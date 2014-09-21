@@ -3,9 +3,15 @@ package org.stevedowning.remo;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
 import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
 import org.stevedowning.remo.internal.common.request.CancellationRequest;
@@ -18,10 +24,16 @@ import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
+import org.stevedowning.remo.internal.server.service.ThreadHandle;
 
 public class NetServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
     private volatile Executor executor = Executors.newCachedThreadPool();
+    private final Map<Id<Request>, ThreadHandle> requestThreadMap = new ConcurrentHashMap<>();
+    // TODO: Use a LRUSet.
+    // TODO: Make sure that Client A can't cancel a request made by Client B.
+    private final Set<Id<Request>> pendingCancellations =
+            Collections.newSetFromMap(new ConcurrentHashMap<>());
     
     public NetServiceRunner useExecutor(Executor executor) {
         this.executor = executor;
@@ -90,12 +102,25 @@ public class NetServiceRunner implements ServiceRunner {
             public void visit(InvocationRequest invocationRequest) {
                 boolean success = true;
                 Object result = null;
+                Id<Request> requestId = invocationRequest.getId();
+                ThreadHandle threadHandle = new ThreadHandle(Thread.currentThread());
+                threadHandle.setExecuting(true);
+                requestThreadMap.put(requestId, threadHandle);
                 try {
-                    result = getServiceRetVal(service, invocationRequest);
+                    if (pendingCancellations.remove(invocationRequest.getId())) {
+                        result = new InterruptedException();
+                        success = false;
+                    } else {
+                        result = getServiceRetVal(service, invocationRequest);
+                    }
                 } catch (Exception ex) {
                     success = false;
                     result = ex;
+                    // This was an error originating outside the Remo library.
                     logError("Error handling request", ex);
+                } finally {
+                    threadHandle.setExecuting(false);
+                    requestThreadMap.remove(requestId);
                 }
 
                 // TODO: Optionally sanitize exceptions here.
@@ -117,7 +142,14 @@ public class NetServiceRunner implements ServiceRunner {
             }
 
             public void visit(CancellationRequest cancellationRequest) {
-                // TODO Auto-generated method stub
+                Id<Request> requestId = cancellationRequest.getCancellationTargetId();
+                ThreadHandle threadHandle =
+                        requestThreadMap.get(requestId);
+                if (threadHandle == null) {
+                    pendingCancellations.add(requestId);
+                } else {
+                    threadHandle.interrupt();
+                }
             }
         });
     }
@@ -146,9 +178,14 @@ public class NetServiceRunner implements ServiceRunner {
                     //       the queue vs the Executor for actually handling the requests.
                     handleRequest(service, responseBatch, request);
                 }
-                // TODO: Serialize the individual responses out as they become available
-                //       instead of sending the batch all at once.
-                serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
+                try {
+                    // TODO: Serialize the individual responses out as they become available
+                    //       instead of sending the batch all at once.
+                    serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
+                } catch (SocketException e) {
+                    // Attempted to serialize to a closed socket. We did our best -- there's
+                    // nothing useful we can do with the error.
+                }
             } catch (Exception e) {
                 logError("Error handling response", e);
             } finally {

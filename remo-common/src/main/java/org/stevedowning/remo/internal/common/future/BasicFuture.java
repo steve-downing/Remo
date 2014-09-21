@@ -59,7 +59,9 @@ public class BasicFuture<T> implements Future<T> {
     
     public BasicFuture<T> addCancellationAction(CancellationAction action) {
         if (action == null) return this;
-        addCallback((Result<T> result) -> { if (isCancelled) action.run(); });
+        addCallback((Result<T> result) -> {
+            if (isCancelled) action.run(cancelMayInterruptIfRunning);
+        });
         return this;
     }
     
