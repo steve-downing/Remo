@@ -25,7 +25,6 @@ public class GuavaFutureMethodInvocationStrategy implements MethodInvocationStra
         InvocationRequest request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
         // TODO: Cancel the request on the server if the Future gets a cancel() request.
-        //       We may have to do this by wrapping the Guava Future in a proxy class.
         final FutureProxy future = new GuavaFutureProxy();
         requestHandler.submitRequest(request).addCallback((Result<Response> result) -> {
             try {
