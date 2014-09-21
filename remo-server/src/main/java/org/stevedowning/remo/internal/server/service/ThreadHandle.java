@@ -12,6 +12,8 @@ public class ThreadHandle {
     public boolean isExecuting() { return isExecuting; }
     
     public synchronized void interrupt() {
-        thread.interrupt();
+        if (isExecuting) {
+            thread.interrupt();
+        }
     }
 }
