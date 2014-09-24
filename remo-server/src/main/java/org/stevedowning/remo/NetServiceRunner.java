@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
+import org.stevedowning.remo.internal.common.request.CancellationDetails;
 import org.stevedowning.remo.internal.common.request.CancellationRequest;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
@@ -23,6 +24,7 @@ import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.struct.LruSet;
 import org.stevedowning.remo.internal.common.struct.observable.ObservableValue;
+import org.stevedowning.remo.internal.server.service.ClientInfo;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
 import org.stevedowning.remo.internal.server.service.ThreadHandle;
 
@@ -32,8 +34,8 @@ public class NetServiceRunner implements ServiceRunner {
     private final SerializationManager serializationManager = new DefaultSerializationManager();
     private volatile Executor executor = Executors.newCachedThreadPool();
     private final Map<Id<Request>, ThreadHandle> requestThreadMap = new ConcurrentHashMap<>();
-    // TODO: Make sure that Client A can't cancel a request made by Client B.
-    private final Set<Id<Request>> pendingCancellations = new LruSet<>(CANCELLATION_CACHE_SIZE);
+    private final Set<CancellationDetails> pendingCancellations =
+            new LruSet<>(CANCELLATION_CACHE_SIZE);
     
     public NetServiceRunner useExecutor(Executor executor) {
         this.executor = executor;
@@ -96,8 +98,8 @@ public class NetServiceRunner implements ServiceRunner {
         return serviceLoop;
     }
     
-    private void handleRequest(ServiceInterface service, ResponseBatch responseBatch,
-            Request request) {
+    private void handleRequest(ServiceInterface service, ClientInfo clientInfo,
+            ResponseBatch responseBatch, Request request) {
         request.accept(new RequestVisitor() {
             public void visit(InvocationRequest invocationRequest) {
                 boolean success = true;
@@ -107,7 +109,9 @@ public class NetServiceRunner implements ServiceRunner {
                 threadHandle.setExecuting(true);
                 requestThreadMap.put(requestId, threadHandle);
                 try {
-                    if (pendingCancellations.remove(invocationRequest.getId())) {
+                    CancellationDetails cancellationDetails =
+                            new CancellationDetails(clientInfo.getId(), invocationRequest.getId()); 
+                    if (pendingCancellations.remove(cancellationDetails)) {
                         result = new InterruptedException();
                         success = false;
                     } else {
@@ -146,7 +150,9 @@ public class NetServiceRunner implements ServiceRunner {
                 ThreadHandle threadHandle =
                         requestThreadMap.get(requestId);
                 if (threadHandle == null) {
-                    pendingCancellations.add(requestId);
+                    pendingCancellations.add(
+                            new CancellationDetails(clientInfo.getId(),
+                                    cancellationRequest.getCancellationTargetId()));
                 } else {
                     threadHandle.interrupt();
                 }
@@ -172,11 +178,12 @@ public class NetServiceRunner implements ServiceRunner {
                 RequestBatch requestBatch =
                         serializationManager.deserialize(clientSocket.getInputStream());
                 ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
+                ClientInfo clientInfo = new ClientInfo(requestBatch.getClientId());
                 // TODO: Delegate these requests to different threads.
                 for (Request request : requestBatch) {
                     // TODO: Separate the Executor for deserialization and pumping requests onto
                     //       the queue vs the Executor for actually handling the requests.
-                    handleRequest(service, responseBatch, request);
+                    handleRequest(service, clientInfo, responseBatch, request);
                 }
                 try {
                     // TODO: Serialize the individual responses out as they become available
