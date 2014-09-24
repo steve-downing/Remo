@@ -4,8 +4,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
-import org.stevedowning.remo.internal.common.future.observable.Observer;
+import org.stevedowning.remo.internal.common.struct.observable.ObservableValue;
+import org.stevedowning.remo.internal.common.struct.observable.Observer;
 
 public class CompletionFuture extends BasicFuture<Void> {
     public void await() throws InterruptedException, ExecutionException {

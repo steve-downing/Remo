@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 
 import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
-import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
 import org.stevedowning.remo.internal.common.request.CancellationRequest;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
@@ -23,6 +22,7 @@ import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.struct.LruSet;
+import org.stevedowning.remo.internal.common.struct.observable.ObservableValue;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
 import org.stevedowning.remo.internal.server.service.ThreadHandle;
 
