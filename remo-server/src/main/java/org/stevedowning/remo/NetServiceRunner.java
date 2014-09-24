@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,17 +22,18 @@ import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.struct.LruSet;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
 import org.stevedowning.remo.internal.server.service.ThreadHandle;
 
 public class NetServiceRunner implements ServiceRunner {
+    private static final int CANCELLATION_CACHE_SIZE = 100000;
+
     private final SerializationManager serializationManager = new DefaultSerializationManager();
     private volatile Executor executor = Executors.newCachedThreadPool();
     private final Map<Id<Request>, ThreadHandle> requestThreadMap = new ConcurrentHashMap<>();
-    // TODO: Use a LRUSet.
     // TODO: Make sure that Client A can't cancel a request made by Client B.
-    private final Set<Id<Request>> pendingCancellations =
-            Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<Id<Request>> pendingCancellations = new LruSet<>(CANCELLATION_CACHE_SIZE);
     
     public NetServiceRunner useExecutor(Executor executor) {
         this.executor = executor;
