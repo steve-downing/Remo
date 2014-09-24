@@ -26,8 +26,9 @@ public interface MethodInvocationStrategy {
     public Object invokeServiceMethod(ServiceMethod method, Object handler, Object[] args)
             throws Exception;
     
-    default InvocationRequest createRequest(IdFactory idFactory, SerializationManager serializationManager,
-            ServiceContext serviceContext, Method method, Object[] args) throws IOException {
+    default InvocationRequest createRequest(IdFactory idFactory,
+            SerializationManager serializationManager, ServiceContext serviceContext,
+            Method method, Object[] args) throws IOException {
         Id<Request> requestId = idFactory.generateId();
         String[] serializedArgs = new String[args.length];
         for (int i = 0; i < args.length; ++i) {
