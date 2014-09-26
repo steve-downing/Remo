@@ -151,6 +151,9 @@ public class NetServiceRunner implements ServiceRunner {
                 if (threadHandle == null) {
                     pendingCancellations.add(
                             new CancellationDetails(clientInfo.getId(), requestId));
+                    // TODO: There's a race condition here. We can plug it by
+                    //       checking again for the existence of the cancellation
+                    //       request in the map right here.
                 } else {
                     threadHandle.interrupt();
                 }
