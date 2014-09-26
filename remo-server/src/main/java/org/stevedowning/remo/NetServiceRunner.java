@@ -147,12 +147,10 @@ public class NetServiceRunner implements ServiceRunner {
 
             public void visit(CancellationRequest cancellationRequest) {
                 Id<Request> requestId = cancellationRequest.getCancellationTargetId();
-                ThreadHandle threadHandle =
-                        requestThreadMap.get(requestId);
+                ThreadHandle threadHandle = requestThreadMap.get(requestId);
                 if (threadHandle == null) {
                     pendingCancellations.add(
-                            new CancellationDetails(clientInfo.getId(),
-                                    cancellationRequest.getCancellationTargetId()));
+                            new CancellationDetails(clientInfo.getId(), requestId));
                 } else {
                     threadHandle.interrupt();
                 }
