@@ -139,6 +139,7 @@ public class NetServiceRunner implements ServiceRunner {
                     } catch (IOException e1) {
                         resultStr = "";
                         logError("Error handling response", e);
+                        logError("Error handling response", e1);
                     }
                 }
                 Response response = new Response(request.getId(), resultStr, success);
