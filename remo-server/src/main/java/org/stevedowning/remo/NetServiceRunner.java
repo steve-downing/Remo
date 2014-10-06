@@ -3,7 +3,6 @@ package org.stevedowning.remo;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -121,7 +120,9 @@ public class NetServiceRunner implements ServiceRunner {
                     success = false;
                     result = ex;
                     // This was an error originating outside the Remo library.
-                    logError("Error handling request", ex);
+                    if (!threadHandle.wasInterrupted()) {
+                        logError("Error handling request", ex);
+                    }
                 } finally {
                     threadHandle.setExecuting(false);
                     requestThreadMap.remove(requestId);
@@ -133,13 +134,13 @@ public class NetServiceRunner implements ServiceRunner {
                     resultStr = serializationManager.serialize(result);
                 } catch (IOException e) {
                     success = false;
+                    logError("Error handling response", e);
                     try {
                         resultStr = serializationManager.serialize(
                                 new IOException("Serialization failed"));
                     } catch (IOException e1) {
                         resultStr = "";
-                        logError("Error handling response", e);
-                        logError("Error handling response", e1);
+                        logError("Error serializing the result string", e1);
                     }
                 }
                 Response response = new Response(request.getId(), resultStr, success);
@@ -148,14 +149,12 @@ public class NetServiceRunner implements ServiceRunner {
 
             public void visit(CancellationRequest cancellationRequest) {
                 Id<Request> requestId = cancellationRequest.getCancellationTargetId();
+                CancellationDetails cancellationDetails =
+                        new CancellationDetails(clientInfo.getId(), requestId);
+                pendingCancellations.add(cancellationDetails);
                 ThreadHandle threadHandle = requestThreadMap.get(requestId);
-                if (threadHandle == null) {
-                    pendingCancellations.add(
-                            new CancellationDetails(clientInfo.getId(), requestId));
-                    // TODO: There's a race condition here. We can plug it by
-                    //       checking again for the existence of the cancellation
-                    //       request in the map right here.
-                } else {
+                if (threadHandle != null) {
+                    pendingCancellations.remove(cancellationDetails);
                     threadHandle.interrupt();
                 }
             }
@@ -187,14 +186,9 @@ public class NetServiceRunner implements ServiceRunner {
                     //       the queue vs the Executor for actually handling the requests.
                     handleRequest(service, clientInfo, responseBatch, request);
                 }
-                try {
-                    // TODO: Serialize the individual responses out as they become available
-                    //       instead of sending the batch all at once.
-                    serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
-                } catch (SocketException e) {
-                    // Attempted to serialize to a closed socket. We did our best -- there's
-                    // nothing useful we can do with the error.
-                }
+                // TODO: Serialize the individual responses out as they become available
+                //       instead of sending the batch all at once.
+                serializationManager.serialize(clientSocket.getOutputStream(), responseBatch);
             } catch (Exception e) {
                 logError("Error handling response", e);
             } finally {
