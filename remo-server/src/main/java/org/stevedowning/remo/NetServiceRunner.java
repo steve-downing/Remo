@@ -169,6 +169,7 @@ public class NetServiceRunner implements ServiceRunner {
             String serializedParam = serializedParams[i];
             params[i] = serializationManager.deserialize(serializedParam);
         }
+        if (Thread.interrupted()) throw new InterruptedException();
         return service.getResult(request.getMethodId(), params);
     }
     
