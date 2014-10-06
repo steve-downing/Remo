@@ -7,6 +7,7 @@ import org.stevedowning.remo.Callback;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.Result;
 import org.stevedowning.remo.ThrowingFunction;
+import org.stevedowning.remo.internal.common.CancellationAction;
 
 public class TransformedFuture<T, U> implements Future<U> {
     private final Future<T> backingFuture;
@@ -75,7 +76,7 @@ public class TransformedFuture<T, U> implements Future<U> {
         return this;
     }
 
-    public TransformedFuture<T, U> addCancellationAction(Runnable action) {
+    public TransformedFuture<T, U> addCancellationAction(CancellationAction action) {
         backingFuture.addCancellationAction(action);
         return this;
     }

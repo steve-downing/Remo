@@ -1,4 +1,4 @@
-package org.stevedowning.remo.internal.common.future.observable;
+package org.stevedowning.remo.internal.common.struct.observable;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

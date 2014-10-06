@@ -19,7 +19,7 @@ public class ResponseBatch implements Iterable<Response>, Serializable {
     public ResponseBatch(Id<RequestBatch> requestBatchId, int numExpectedResults) {
         this.requestBatchId = requestBatchId;
         this.numExpectedResults = numExpectedResults;
-        this.responses = new HashMap<Id<Request>, Response>();
+        this.responses = new HashMap<>();
     }
     
     public static ResponseBatch forRequestBatch(RequestBatch requestBatch) {

@@ -6,7 +6,8 @@ import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.Result;
 import org.stevedowning.remo.internal.common.invocation.futureproxy.FutureProxy;
 import org.stevedowning.remo.internal.common.invocation.futureproxy.GuavaFutureProxy;
-import org.stevedowning.remo.internal.common.request.Request;
+import org.stevedowning.remo.internal.common.request.CancellationRequest;
+import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
@@ -22,11 +23,15 @@ public class GuavaFutureMethodInvocationStrategy implements MethodInvocationStra
             SerializationManager serializationManager,
             ServiceContext serviceContext, Method method, Object[] args)
             throws Exception {
-        Request request = createRequest(
+        InvocationRequest request = createRequest(
                 idFactory, serializationManager, serviceContext, method, args);
-        // TODO: Cancel the request on the server if the Future gets a cancel() request.
-        //       We may have to do this by wrapping the Guava Future in a proxy class.
         final FutureProxy future = new GuavaFutureProxy();
+        future.addCancellationAction((boolean mayInterruptIfRunning) -> {
+            if (mayInterruptIfRunning) {
+                requestHandler.submitRequest(new CancellationRequest(
+                        idFactory.generateId(), request.getId()));
+            }
+        });
         requestHandler.submitRequest(request).addCallback((Result<Response> result) -> {
             try {
                 Object val = serializationManager.deserialize(result.get().getSerializedResult());

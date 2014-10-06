@@ -9,19 +9,23 @@ import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.commons.idyll.Identifiable;
 import org.stevedowning.commons.idyll.datastructures.IdMap;
 import org.stevedowning.commons.idyll.datastructures.LinkedHashIdMap;
+import org.stevedowning.remo.internal.common.ClientId;
 
 public class RequestBatch implements Identifiable<RequestBatch>, Iterable<Request>, Serializable {
     private static final long serialVersionUID = 7435696533101840173L;
 
-    private final Id<RequestBatch> id;
+    private final ClientId clientId;
+    private final Id<RequestBatch> batchId;
     private final IdMap<Request> requests;
     
-    public RequestBatch(Id<RequestBatch> id) {
-        this.id = id;
+    public RequestBatch(ClientId clientId, Id<RequestBatch> batchId) {
+        this.clientId = clientId;
+        this.batchId = batchId;
         this.requests = new LinkedHashIdMap<Request>();
     }
     
-    public Id<RequestBatch> getId() { return id; }
+    public ClientId getClientId() { return clientId; }
+    public Id<RequestBatch> getId() { return batchId; }
     
     public synchronized void add(Request request) { requests.add(request); }
     public synchronized void remove(Id<Request> requestId) { requests.remove(requestId); }

@@ -1,6 +1,6 @@
 # Remo
 
-Remo is an easy RPC framework for Java that stays out of your way. No config files and minimal boilerplate are necessary to get a simple service up and running.
+Remo is a quick and easy RPC library for Java that stays out of your way. No config files and minimal boilerplate are necessary to get a simple service up and running.
 
 ## Basic Usage
 
@@ -16,7 +16,7 @@ First, create an interface for the service you'd like to provide. This interface
 Server-side:
 
     // This instantiates a BookmarkServiceImpl and uses it to handle requests.
-    // It honors the BookMarkService contract described above and serves it on port 8080.
+    // It honors the BookmarkService contract described above and serves it on port 8080.
     new NetServiceRunner().runService(new BookmarkServiceImpl(), BookmarkService.class, 8080);
 
 You provide the service implementation, but it's just one line of code and zero lines of configuration to fire up your service.
@@ -24,7 +24,7 @@ You provide the service implementation, but it's just one line of code and zero 
 Client-side:
 
     // This creates a hook to a service we've hosted on api.bookmarks.com:8080.
-    // A call to any bookmarkService method will execute remotely.
+    // A call to any BookmarkService method will execute remotely.
     BookmarkService bookmarkService =
         new RemoteServiceClientFactory("api.bookmarks.com", 8080).getService(BookmarkService.class);
 

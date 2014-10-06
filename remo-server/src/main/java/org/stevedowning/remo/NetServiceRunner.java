@@ -3,22 +3,43 @@ package org.stevedowning.remo;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
-import org.stevedowning.remo.internal.common.future.observable.ObservableValue;
+import org.stevedowning.remo.internal.common.request.CancellationDetails;
+import org.stevedowning.remo.internal.common.request.CancellationRequest;
+import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
+import org.stevedowning.remo.internal.common.request.RequestVisitor;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
 import org.stevedowning.remo.internal.common.serial.DefaultSerializationManager;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
+import org.stevedowning.remo.internal.common.struct.LruSet;
+import org.stevedowning.remo.internal.common.struct.observable.ObservableValue;
+import org.stevedowning.remo.internal.server.service.ClientInfo;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
+import org.stevedowning.remo.internal.server.service.ThreadHandle;
 
 public class NetServiceRunner implements ServiceRunner {
+    private static final int CANCELLATION_CACHE_SIZE = 100000;
+
     private final SerializationManager serializationManager = new DefaultSerializationManager();
-    private final Executor executor = Executors.newCachedThreadPool();
+    private volatile Executor executor = Executors.newCachedThreadPool();
+    private final Map<Id<Request>, ThreadHandle> requestThreadMap = new ConcurrentHashMap<>();
+    private final Set<CancellationDetails> pendingCancellations =
+            new LruSet<>(CANCELLATION_CACHE_SIZE);
+    
+    public NetServiceRunner useExecutor(Executor executor) {
+        this.executor = executor;
+        return this;
+    }
     
     private class ServiceLoop implements Runnable, ServiceHandle {
         private volatile boolean shutdownRequested = false;
@@ -76,25 +97,71 @@ public class NetServiceRunner implements ServiceRunner {
         return serviceLoop;
     }
     
-    private void handleRequest(ServiceInterface service, ResponseBatch responseBatch,
-            Request request) throws IOException {
-        boolean success = true;
-        Object result = null;
-        try {
-            result = getServiceRetVal(service, request);
-        } catch (Exception ex) {
-            success = false;
-            result = ex;
-            logError("Error handling request", ex);
-        }
+    private void handleRequest(ServiceInterface service, ClientInfo clientInfo,
+            ResponseBatch responseBatch, Request request) {
+        request.accept(new RequestVisitor() {
+            public void visit(InvocationRequest invocationRequest) {
+                boolean success = true;
+                Object result = null;
+                Id<Request> requestId = invocationRequest.getId();
+                ThreadHandle threadHandle = new ThreadHandle(Thread.currentThread());
+                threadHandle.setExecuting(true);
+                requestThreadMap.put(requestId, threadHandle);
+                try {
+                    CancellationDetails cancellationDetails =
+                            new CancellationDetails(clientInfo.getId(), invocationRequest.getId()); 
+                    if (pendingCancellations.remove(cancellationDetails)) {
+                        result = new InterruptedException();
+                        success = false;
+                    } else {
+                        result = getServiceRetVal(service, invocationRequest);
+                    }
+                } catch (Exception ex) {
+                    success = false;
+                    result = ex;
+                    // This was an error originating outside the Remo library.
+                    if (!threadHandle.wasInterrupted()) {
+                        logError("Error handling request", ex);
+                    }
+                } finally {
+                    threadHandle.setExecuting(false);
+                    requestThreadMap.remove(requestId);
+                }
 
-        // TODO: Optionally sanitize exceptions here.
-        String resultStr = serializationManager.serialize(result);
-        Response response = new Response(request.getId(), resultStr, success);
-        responseBatch.addResponse(response);
+                // TODO: Optionally sanitize exceptions here.
+                String resultStr;
+                try {
+                    resultStr = serializationManager.serialize(result);
+                } catch (IOException e) {
+                    success = false;
+                    logError("Error handling response", e);
+                    try {
+                        resultStr = serializationManager.serialize(
+                                new IOException("Serialization failed"));
+                    } catch (IOException e1) {
+                        resultStr = "";
+                        logError("Error serializing the result string", e1);
+                    }
+                }
+                Response response = new Response(request.getId(), resultStr, success);
+                responseBatch.addResponse(response);
+            }
+
+            public void visit(CancellationRequest cancellationRequest) {
+                Id<Request> requestId = cancellationRequest.getCancellationTargetId();
+                CancellationDetails cancellationDetails =
+                        new CancellationDetails(clientInfo.getId(), requestId);
+                pendingCancellations.add(cancellationDetails);
+                ThreadHandle threadHandle = requestThreadMap.get(requestId);
+                if (threadHandle != null) {
+                    pendingCancellations.remove(cancellationDetails);
+                    threadHandle.interrupt();
+                }
+            }
+        });
     }
 
-    private Object getServiceRetVal(ServiceInterface service, Request request)
+    private Object getServiceRetVal(ServiceInterface service, InvocationRequest request)
             throws Exception {
         String[] serializedParams = request.getSerializedParams();
         Object[] params = new Object[serializedParams.length];
@@ -102,6 +169,7 @@ public class NetServiceRunner implements ServiceRunner {
             String serializedParam = serializedParams[i];
             params[i] = serializationManager.deserialize(serializedParam);
         }
+        if (Thread.interrupted()) throw new InterruptedException();
         return service.getResult(request.getMethodId(), params);
     }
     
@@ -112,9 +180,12 @@ public class NetServiceRunner implements ServiceRunner {
                 RequestBatch requestBatch =
                         serializationManager.deserialize(clientSocket.getInputStream());
                 ResponseBatch responseBatch = ResponseBatch.forRequestBatch(requestBatch);
+                ClientInfo clientInfo = new ClientInfo(requestBatch.getClientId());
                 // TODO: Delegate these requests to different threads.
                 for (Request request : requestBatch) {
-                    handleRequest(service, responseBatch, request);
+                    // TODO: Separate the Executor for deserialization and pumping requests onto
+                    //       the queue vs the Executor for actually handling the requests.
+                    handleRequest(service, clientInfo, responseBatch, request);
                 }
                 // TODO: Serialize the individual responses out as they become available
                 //       instead of sending the batch all at once.
