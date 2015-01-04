@@ -1,6 +1,6 @@
 package org.stevedowning.remo.internal.common.request;
 
-import org.stevedowning.commons.idyll.Id;
+import org.suporma.idyll.id.Id;
 
 public class CancellationRequest implements Request {
     private static final long serialVersionUID = -8391600089252538774L;

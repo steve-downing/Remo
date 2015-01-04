@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.future.CompletionFuture;
 import org.stevedowning.remo.internal.common.request.CancellationDetails;
 import org.stevedowning.remo.internal.common.request.CancellationRequest;
@@ -26,6 +25,7 @@ import org.stevedowning.remo.internal.common.struct.observable.ObservableValue;
 import org.stevedowning.remo.internal.server.service.ClientInfo;
 import org.stevedowning.remo.internal.server.service.ServiceInterface;
 import org.stevedowning.remo.internal.server.service.ThreadHandle;
+import org.suporma.idyll.id.Id;
 
 public class NetServiceRunner implements ServiceRunner {
     private static final int CANCELLATION_CACHE_SIZE = 100000;

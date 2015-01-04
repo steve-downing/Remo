@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
+import org.suporma.idyll.util.IdFactory;
 
 public class NoMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) { return true; }

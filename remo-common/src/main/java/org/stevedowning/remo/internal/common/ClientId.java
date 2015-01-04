@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Random;
 
-import org.stevedowning.commons.idyll.Id;
+import org.suporma.idyll.id.Id;
 
 public class ClientId implements Id<Object>, Serializable {
     private static final long serialVersionUID = 1829355624289827151L;

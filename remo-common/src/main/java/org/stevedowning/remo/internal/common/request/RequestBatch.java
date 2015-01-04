@@ -5,11 +5,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.stevedowning.commons.idyll.Id;
-import org.stevedowning.commons.idyll.Identifiable;
-import org.stevedowning.commons.idyll.datastructures.IdMap;
-import org.stevedowning.commons.idyll.datastructures.LinkedHashIdMap;
 import org.stevedowning.remo.internal.common.ClientId;
+import org.suporma.idyll.id.Id;
+import org.suporma.idyll.id.Identifiable;
+import org.suporma.idyll.util.IdMap;
+import org.suporma.idyll.util.LinkedHashIdMap;
 
 public class RequestBatch implements Identifiable<RequestBatch>, Iterable<Request>, Serializable {
     private static final long serialVersionUID = 7435696533101840173L;

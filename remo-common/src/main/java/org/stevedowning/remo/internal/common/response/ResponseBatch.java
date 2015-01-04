@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
+import org.suporma.idyll.id.Id;
 
 public class ResponseBatch implements Iterable<Response>, Serializable {
     private static final long serialVersionUID = 8764303453222320772L;

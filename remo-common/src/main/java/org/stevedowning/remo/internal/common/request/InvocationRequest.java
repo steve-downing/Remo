@@ -1,7 +1,7 @@
 package org.stevedowning.remo.internal.common.request;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.service.ServiceMethodId;
+import org.suporma.idyll.id.Id;
 
 public class InvocationRequest implements Request {
     private static final long serialVersionUID = -6513834117816347278L;

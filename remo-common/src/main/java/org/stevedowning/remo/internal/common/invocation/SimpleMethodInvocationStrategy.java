@@ -2,12 +2,12 @@ package org.stevedowning.remo.internal.common.invocation;
 
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
+import org.suporma.idyll.util.IdFactory;
 
 public class SimpleMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {

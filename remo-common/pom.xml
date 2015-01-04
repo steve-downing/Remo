@@ -22,7 +22,7 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-    	<groupId>org.stevedowning.commons.idyll</groupId>
+    	<groupId>org.suporma.idyll</groupId>
     	<artifactId>idyll</artifactId>
     	<version>0.0.1-SNAPSHOT</version>
     </dependency>

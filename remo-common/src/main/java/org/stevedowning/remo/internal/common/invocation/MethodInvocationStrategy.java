@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.Id;
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.response.Response;
@@ -13,6 +11,8 @@ import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
 import org.stevedowning.remo.internal.common.service.ServiceMethodId;
+import org.suporma.idyll.id.Id;
+import org.suporma.idyll.util.IdFactory;
 
 public interface MethodInvocationStrategy {
     public boolean canHandle(Method method);

@@ -3,8 +3,8 @@ package org.stevedowning.remo.internal.common.service;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.Identifiable;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
+import org.suporma.idyll.id.Identifiable;
 
 public class ServiceMethod implements Identifiable<ServiceMethod> {
     private final Method method;

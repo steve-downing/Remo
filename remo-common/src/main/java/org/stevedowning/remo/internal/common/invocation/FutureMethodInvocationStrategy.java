@@ -5,13 +5,13 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.internal.common.request.CancellationRequest;
 import org.stevedowning.remo.internal.common.request.InvocationRequest;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
+import org.suporma.idyll.util.IdFactory;
 
 public class FutureMethodInvocationStrategy implements MethodInvocationStrategy {
     public boolean canHandle(Method method) {

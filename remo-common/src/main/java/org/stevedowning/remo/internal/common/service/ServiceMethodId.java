@@ -3,7 +3,7 @@ package org.stevedowning.remo.internal.common.service;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.Id;
+import org.suporma.idyll.id.Id;
 
 public class ServiceMethodId implements Id<ServiceMethod>, Serializable {
     private static final long serialVersionUID = 8783399404127942634L;

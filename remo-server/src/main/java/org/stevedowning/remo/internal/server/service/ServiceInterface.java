@@ -2,12 +2,12 @@ package org.stevedowning.remo.internal.server.service;
 
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.datastructures.HashIdMap;
-import org.stevedowning.commons.idyll.datastructures.IdMap;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategySelector;
 import org.stevedowning.remo.internal.common.service.ServiceMethod;
 import org.stevedowning.remo.internal.common.service.ServiceMethodId;
+import org.suporma.idyll.util.HashIdMap;
+import org.suporma.idyll.util.IdMap;
 
 public class ServiceInterface {
     private final Object handler;

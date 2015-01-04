@@ -2,8 +2,8 @@ package org.stevedowning.remo.internal.common.response;
 
 import java.io.Serializable;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.request.Request;
+import org.suporma.idyll.id.Id;
 
 public class Response implements Serializable {
     private static final long serialVersionUID = -664427227833897175L;

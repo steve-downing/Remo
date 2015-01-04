@@ -3,8 +3,6 @@ package org.stevedowning.remo.internal.client.service;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
-import org.stevedowning.commons.idyll.idfactory.LongIdFactory;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
 import org.stevedowning.remo.internal.common.ClientId;
 import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy;
@@ -12,6 +10,8 @@ import org.stevedowning.remo.internal.common.invocation.MethodInvocationStrategy
 import org.stevedowning.remo.internal.common.invocation.RequestHandler;
 import org.stevedowning.remo.internal.common.serial.SerializationManager;
 import org.stevedowning.remo.internal.common.service.ServiceContext;
+import org.suporma.idyll.util.IdFactory;
+import org.suporma.idyll.util.LongIdFactory;
 
 public class ServiceProxy implements InvocationHandler {
     private final ClientId clientId;

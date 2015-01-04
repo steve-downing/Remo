@@ -2,8 +2,8 @@ package org.stevedowning.remo.internal.common.request;
 
 import java.io.Serializable;
 
-import org.stevedowning.commons.idyll.Id;
 import org.stevedowning.remo.internal.common.ClientId;
+import org.suporma.idyll.id.Id;
 
 public class CancellationDetails implements Serializable {
     private static final long serialVersionUID = 8809371248190740444L;

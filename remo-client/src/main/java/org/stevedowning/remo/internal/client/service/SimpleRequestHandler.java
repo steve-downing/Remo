@@ -1,6 +1,5 @@
 package org.stevedowning.remo.internal.client.service;
 
-import org.stevedowning.commons.idyll.idfactory.IdFactory;
 import org.stevedowning.remo.Future;
 import org.stevedowning.remo.internal.client.conn.ServerConnection;
 import org.stevedowning.remo.internal.common.ClientId;
@@ -9,6 +8,7 @@ import org.stevedowning.remo.internal.common.request.Request;
 import org.stevedowning.remo.internal.common.request.RequestBatch;
 import org.stevedowning.remo.internal.common.response.Response;
 import org.stevedowning.remo.internal.common.response.ResponseBatch;
+import org.suporma.idyll.util.IdFactory;
 
 public class SimpleRequestHandler implements RequestHandler {
     private final ClientId clientId;
