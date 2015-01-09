@@ -1,11 +1,8 @@
-package org.suporma.remo.internal.common.future;
+package org.suporma.remo.future;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-
-import org.suporma.remo.internal.common.struct.observable.ObservableValue;
-import org.suporma.remo.internal.common.struct.observable.Observer;
 
 public class CompletionFuture extends BasicFuture<Void> {
     public void await() throws InterruptedException, ExecutionException {

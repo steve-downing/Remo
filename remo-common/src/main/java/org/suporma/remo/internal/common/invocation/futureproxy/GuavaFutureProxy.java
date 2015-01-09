@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.Executor;
 
+import org.suporma.remo.future.SameThreadExecutor;
 import org.suporma.remo.internal.common.CancellationAction;
-import org.suporma.remo.internal.common.future.SameThreadExecutor;
 
 public class GuavaFutureProxy implements FutureProxy {
     private final Object guavaFuture;

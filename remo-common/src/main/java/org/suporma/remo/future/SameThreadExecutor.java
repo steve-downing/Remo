@@ -1,4 +1,4 @@
-package org.suporma.remo.internal.common.future;
+package org.suporma.remo.future;
 
 import java.util.concurrent.Executor;
 

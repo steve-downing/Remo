@@ -10,7 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.suporma.idyll.id.Id;
-import org.suporma.remo.internal.common.future.CompletionFuture;
+import org.suporma.remo.future.CompletionFuture;
+import org.suporma.remo.future.ObservableValue;
 import org.suporma.remo.internal.common.request.CancellationDetails;
 import org.suporma.remo.internal.common.request.CancellationRequest;
 import org.suporma.remo.internal.common.request.InvocationRequest;
@@ -22,7 +23,6 @@ import org.suporma.remo.internal.common.response.ResponseBatch;
 import org.suporma.remo.internal.common.serial.DefaultSerializationManager;
 import org.suporma.remo.internal.common.serial.SerializationManager;
 import org.suporma.remo.internal.common.struct.LruSet;
-import org.suporma.remo.internal.common.struct.observable.ObservableValue;
 import org.suporma.remo.internal.server.service.ClientInfo;
 import org.suporma.remo.internal.server.service.ServiceInterface;
 import org.suporma.remo.internal.server.service.ThreadHandle;

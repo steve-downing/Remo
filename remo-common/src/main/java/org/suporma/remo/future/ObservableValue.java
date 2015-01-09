@@ -1,4 +1,4 @@
-package org.suporma.remo.internal.common.struct.observable;
+package org.suporma.remo.future;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;

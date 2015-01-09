@@ -1,4 +1,4 @@
-package org.suporma.remo.internal.common.future;
+package org.suporma.remo.future;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,6 +11,7 @@ import org.suporma.remo.Callback;
 import org.suporma.remo.Future;
 import org.suporma.remo.Result;
 import org.suporma.remo.internal.common.CancellationAction;
+import org.suporma.remo.internal.common.future.ErrorContainer;
 
 public class BasicFuture<T> implements Future<T> {
     private volatile boolean isError, isCancelled, isSuccess, cancelMayInterruptIfRunning,

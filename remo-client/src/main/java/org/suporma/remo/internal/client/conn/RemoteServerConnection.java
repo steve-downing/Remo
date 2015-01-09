@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.suporma.remo.Future;
-import org.suporma.remo.internal.common.future.BasicFuture;
+import org.suporma.remo.future.BasicFuture;
 import org.suporma.remo.internal.common.request.RequestBatch;
 import org.suporma.remo.internal.common.response.ResponseBatch;
 import org.suporma.remo.internal.common.serial.DefaultSerializationManager;

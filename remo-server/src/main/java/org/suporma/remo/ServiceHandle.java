@@ -1,6 +1,6 @@
 package org.suporma.remo;
 
-import org.suporma.remo.internal.common.future.CompletionFuture;
+import org.suporma.remo.future.CompletionFuture;
 
 public interface ServiceHandle {
     public CompletionFuture safeShutdown();

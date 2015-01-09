@@ -1,4 +1,4 @@
-package org.suporma.remo.internal.common.struct.observable;
+package org.suporma.remo.future;
 
 public interface Observer<T> {
     public void handleChange(T val);

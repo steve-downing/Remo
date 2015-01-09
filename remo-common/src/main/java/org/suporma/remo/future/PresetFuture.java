@@ -1,4 +1,4 @@
-package org.suporma.remo.internal.common.future;
+package org.suporma.remo.future;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.suporma.remo.Callback;
 import org.suporma.remo.Future;
 import org.suporma.remo.internal.common.CancellationAction;
+import org.suporma.remo.internal.common.future.ErrorContainer;
 
 public class PresetFuture<T> implements Future<T> {
     private final T val;

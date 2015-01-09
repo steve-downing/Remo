@@ -7,6 +7,7 @@ import org.suporma.remo.Callback;
 import org.suporma.remo.Future;
 import org.suporma.remo.Result;
 import org.suporma.remo.ThrowingFunction;
+import org.suporma.remo.future.PresetFuture;
 import org.suporma.remo.internal.common.CancellationAction;
 
 public class TransformedFuture<T, U> implements Future<U> {
